@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Navbar } from './components/Navbar';
+import { ProgressionSection } from './components/ProgressionSection';
+import { RegionMapSection } from './components/RegionMapSection';
+import { UsefulTipsSection } from './components/UsefulTipsSection';
 import { ControlsSection } from './components/ControlsSection';
 import { ClassesWeaponsSection } from './components/ClassesWeaponsSection';
 import { BuildsSection } from './components/BuildsSection';
@@ -11,7 +14,7 @@ import { upgradesList } from './data/upgradesData';
 import { Github, Heart, Sparkles } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('controls');
+  const [activeTab, setActiveTab] = useState<string>('progression');
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>(() => {
     try {
       const saved = localStorage.getItem('elden_ring_guide_checklist');
@@ -53,7 +56,7 @@ export const App: React.FC = () => {
         totalChecklistCount={totalChecklistCount}
       />
 
-      {/* Navigation (Desktop Top Stick / Mobile Bottom Stick) */}
+      {/* Navigation (Desktop Top Sticky / Mobile Bottom Stick) */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -62,6 +65,9 @@ export const App: React.FC = () => {
 
       {/* Main Content Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 md:pb-12">
+        {activeTab === 'progression' && <ProgressionSection />}
+        {activeTab === 'regions' && <RegionMapSection />}
+        {activeTab === 'useful' && <UsefulTipsSection />}
         {activeTab === 'controls' && <ControlsSection />}
         {activeTab === 'classes' && <ClassesWeaponsSection />}
         {activeTab === 'builds' && <BuildsSection />}
