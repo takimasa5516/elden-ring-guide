@@ -1,4 +1,4 @@
-export type Platform = 'ps' | 'xbox' | 'pc';
+export type Platform = 'ps' | 'xbox' | 'pc' | 'switch2';
 
 export interface ControlItem {
   id: string;
@@ -7,6 +7,7 @@ export interface ControlItem {
   ps: string;
   xbox: string;
   pc: string;
+  switch2: string;
   note?: string;
   isCrucial?: boolean;
 }

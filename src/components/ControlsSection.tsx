@@ -20,30 +20,41 @@ export const ControlsSection: React.FC = () => {
           </p>
         </div>
 
-        <div className="inline-flex p-1 bg-elden-card rounded-xl border border-elden-border self-start sm:self-auto">
+        <div className="flex flex-wrap p-1 bg-elden-card rounded-xl border border-elden-border self-start sm:self-auto gap-1">
           <button
             onClick={() => setPlatform('ps')}
-            className={`px-3 sm:px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
               platform === 'ps'
                 ? 'bg-elden-gold text-black font-bold shadow'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            PlayStation (PS5/PS4)
+            PlayStation (PS5/4)
           </button>
           <button
             onClick={() => setPlatform('xbox')}
-            className={`px-3 sm:px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
               platform === 'xbox'
                 ? 'bg-elden-gold text-black font-bold shadow'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            Xbox コントローラー
+            Xbox
+          </button>
+          <button
+            onClick={() => setPlatform('switch2')}
+            className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+              platform === 'switch2'
+                ? 'bg-red-600 text-white font-bold shadow'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse"></span>
+            Nintendo Switch 2
           </button>
           <button
             onClick={() => setPlatform('pc')}
-            className={`px-3 sm:px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
               platform === 'pc'
                 ? 'bg-elden-gold text-black font-bold shadow'
                 : 'text-gray-400 hover:text-white'
@@ -53,6 +64,27 @@ export const ControlsSection: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Switch 2 Special Guidance Banner */}
+      {platform === 'switch2' && (
+        <div className="p-4 rounded-xl bg-red-950/30 border border-red-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs animate-fadeIn">
+          <div className="flex items-start gap-2.5">
+            <Info className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold text-red-200">
+                Nintendo Switch 2 (Proコントローラー / Joy-Con 2) ボタン配置
+              </p>
+              <p className="text-gray-300 mt-1 leading-relaxed">
+                任天堂コントローラーの右面ボタン配置：【A（右）】回避・ダッシュ / 【B（下）】ジャンプ / 【X（上）】アクション・調べる / 【Y（左）】アイテム使用。<br className="hidden sm:inline" />
+                PlayStationの「○（右）・✕（下）・△（上）・□（左）」と物理位置が同一のため、指の配置はそのままで直感的にプレイ可能です。
+              </p>
+            </div>
+          </div>
+          <span className="text-[11px] px-2.5 py-1 rounded bg-red-900/60 text-red-200 border border-red-700/60 font-mono shrink-0 self-start sm:self-auto font-semibold">
+            Switch 2 最適化
+          </span>
+        </div>
+      )}
 
       {/* Must-Read Essential Tips */}
       <div className="space-y-4">
@@ -132,7 +164,14 @@ export const ControlsSection: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {controlsList.map((ctrl) => {
-            const keyCommand = platform === 'ps' ? ctrl.ps : platform === 'xbox' ? ctrl.xbox : ctrl.pc;
+            const keyCommand =
+              platform === 'ps'
+                ? ctrl.ps
+                : platform === 'xbox'
+                ? ctrl.xbox
+                : platform === 'switch2'
+                ? ctrl.switch2
+                : ctrl.pc;
             return (
               <div
                 key={ctrl.id}
@@ -154,8 +193,18 @@ export const ControlsSection: React.FC = () => {
                   </div>
 
                   {/* Button Command Display */}
-                  <div className="my-2 p-2 rounded-lg bg-black/60 border border-elden-border text-center">
-                    <span className="text-xs font-mono font-bold text-elden-gold-light tracking-wide">
+                  <div
+                    className={`my-2 p-2 rounded-lg border text-center ${
+                      platform === 'switch2'
+                        ? 'bg-red-950/20 border-red-900/40 text-red-200'
+                        : 'bg-black/60 border-elden-border'
+                    }`}
+                  >
+                    <span
+                      className={`text-xs font-mono font-bold tracking-wide ${
+                        platform === 'switch2' ? 'text-red-300' : 'text-elden-gold-light'
+                      }`}
+                    >
                       {keyCommand}
                     </span>
                   </div>
