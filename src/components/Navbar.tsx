@@ -9,6 +9,9 @@ import {
   MapPin,
   Coins,
   CheckSquare,
+  ShieldAlert,
+  Hammer,
+  FlaskConical,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -22,6 +25,9 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, checked
     { id: 'progression', label: '進行ガイド (序・中・終盤)', shortLabel: '進行ガイド', icon: Compass },
     { id: 'regions', label: '地域別マップ ＆ スポット', shortLabel: '地域マップ', icon: Map },
     { id: 'useful', label: '神遺灰・タリスマン・知識', shortLabel: '神遺灰・知識', icon: Sparkles },
+    { id: 'npc-safety', label: '取返不能 ＆ 重要NPC', shortLabel: 'NPC・取返不能', icon: ShieldAlert },
+    { id: 'smithing', label: '鍛石・喪色ルート (最速+9)', shortLabel: '鍛石ルート', icon: Hammer },
+    { id: 'physick', label: '霊薬配合シミュレーター', shortLabel: '霊薬配合', icon: FlaskConical },
     { id: 'controls', label: '基本操作・心得', shortLabel: '操作・心得', icon: Gamepad2 },
     { id: 'classes', label: '素性・おすすめ装備', shortLabel: '素性・装備', icon: Sword },
     { id: 'builds', label: 'おすすめビルド・ステ振り', shortLabel: 'ビルド', icon: Target },

@@ -96,3 +96,86 @@ export interface RuneFarmSpot {
   steps: string[];
   tips: string;
 }
+
+// --- NPC & Missable Safety ---
+export interface MissableAlert {
+  id: string;
+  title: string;
+  timing: string;
+  riskLevel: 'critical' | 'high' | 'warning';
+  whatIsLost: string[];
+  preventRule: string;
+  details: string[];
+}
+
+export interface NpcSafetyItem {
+  id: string;
+  name: string;
+  title: string;
+  firstLocation: string;
+  bestReward: string;
+  rewardType: 'weapon' | 'talisman' | 'item' | 'material';
+  safetyRule: string;
+  stepGuide: {
+    location: string;
+    action: string;
+    note?: string;
+  }[];
+}
+
+// --- Smithing Stones ---
+export interface SomberStoneRouteItem {
+  level: number;
+  name: string;
+  location: string;
+  area: string;
+  isNoBoss: boolean;
+  howToGet: string;
+  altLocation?: string;
+  tip: string;
+}
+
+export interface RegularSmithingItem {
+  tier: number;
+  name: string;
+  targetLevel: string;
+  countNeeded: number;
+  bestFarming: string;
+  noBossPickup: string;
+  bellBearing: string;
+  bellLocation: string;
+}
+
+export interface BellBearingItem {
+  id: string;
+  name: string;
+  category: 'smithing' | 'somber' | 'glovewort';
+  tierRange: string;
+  location: string;
+  howToGet: string;
+  shopItems: string[];
+}
+
+// --- Flask of Wondrous Physick ---
+export interface CrystalTearItem {
+  id: string;
+  name: string;
+  category: 'buff' | 'recovery' | 'special' | 'stat';
+  effect: string;
+  duration: string;
+  location: string;
+  guardian: string;
+  description: string;
+}
+
+export interface PhysickComboPreset {
+  id: string;
+  name: string;
+  tagline: string;
+  tear1Id: string;
+  tear2Id: string;
+  recommendedBuild: string;
+  description: string;
+  synergy: string;
+}
+

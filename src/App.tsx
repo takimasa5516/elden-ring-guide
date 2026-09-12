@@ -4,6 +4,9 @@ import { Navbar } from './components/Navbar';
 import { ProgressionSection } from './components/ProgressionSection';
 import { RegionMapSection } from './components/RegionMapSection';
 import { UsefulTipsSection } from './components/UsefulTipsSection';
+import { NpcSafetySection } from './components/NpcSafetySection';
+import { SmithingSection } from './components/SmithingSection';
+import { PhysickSection } from './components/PhysickSection';
 import { ControlsSection } from './components/ControlsSection';
 import { ClassesWeaponsSection } from './components/ClassesWeaponsSection';
 import { BuildsSection } from './components/BuildsSection';
@@ -68,6 +71,9 @@ export const App: React.FC = () => {
         {activeTab === 'progression' && <ProgressionSection />}
         {activeTab === 'regions' && <RegionMapSection />}
         {activeTab === 'useful' && <UsefulTipsSection />}
+        {activeTab === 'npc-safety' && <NpcSafetySection />}
+        {activeTab === 'smithing' && <SmithingSection />}
+        {activeTab === 'physick' && <PhysickSection />}
         {activeTab === 'controls' && <ControlsSection />}
         {activeTab === 'classes' && <ClassesWeaponsSection />}
         {activeTab === 'builds' && <BuildsSection />}
