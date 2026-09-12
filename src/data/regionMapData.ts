@@ -15,6 +15,7 @@ export interface RegionMapInfo {
   enName: string;
   recommendedLevel: string;
   summary: string;
+  mapImage: string;
   mapFragments: {
     name: string;
     location: string;
@@ -31,6 +32,7 @@ export const regionsData: RegionMapInfo[] = [
     enName: 'Limgrave & Weeping Peninsula',
     recommendedLevel: 'Lv. 1 〜 35',
     summary: '冒険の出発点。広大な草原と森林、南の孤立した半島。ストーリー上は北のストームヴィル城が目標とされますが、まずは南の「啜り泣きの半島」を一周して聖杯瓶を最大まで強化するのが最も賢い探索順序です。',
+    mapImage: 'images/maps/limgrave.png',
     mapFragments: [
       { name: 'リムグレイブ西部', location: '関門前の廃墟中央の石柱' },
       { name: 'リムグレイブ東部', location: '霧の森の街道沿い（大熊エリア手前）' },
@@ -69,6 +71,7 @@ export const regionsData: RegionMapInfo[] = [
     enName: 'Liurnia of the Lakes',
     recommendedLevel: 'Lv. 35 〜 65',
     summary: '常に濃い霧と水に包まれた巨大な湿地帯。中央にそびえる魔術学院レアルカリアを中心に、魔術や知力系の装備・鈴玉・重要NPCイベントが密集しています。ストームヴィル城をクリアしていなくても東の崖沿い道から直行可能です。',
+    mapImage: 'images/maps/liurnia.png',
     mapFragments: [
       { name: 'リエーニエ東部', location: '湖に入ってすぐ北の湖畔街道沿い' },
       { name: 'リエーニエ北部', location: '学院の門前町から北西の沈んだ広場' },
@@ -103,6 +106,7 @@ export const regionsData: RegionMapInfo[] = [
     enName: 'Caelid & Dragonbarrow',
     recommendedLevel: 'ケイリッド Lv. 50〜70 / 竜塚 Lv. 70+ (※回収のみならLv.1可)',
     summary: '朱い腐敗に侵された地獄のような荒野。敵の攻撃力は極めて凶悪ですが、馬で駆け抜けるだけで「隕石の杖」「岩石弾」「グレートソード」「金のスカラベ」「約10万ルーンのグレイオール」など全マップ屈指の壊れ報酬が集まります。',
+    mapImage: 'images/maps/caelid.png',
     mapFragments: [
       { name: 'ケイリッド', location: 'エオニア沼の南の三叉路' },
       { name: '竜塚', location: '竜塚西部の断崖沿い街道' },
@@ -136,6 +140,7 @@ export const regionsData: RegionMapInfo[] = [
     enName: 'Altus Plateau & Mt. Gelmir',
     recommendedLevel: 'Lv. 60 〜 90',
     summary: '黄金樹の麓に広がる美しい黄金の高原と、険しい溶岩の火山地帯。デクタスの大昇降機または古遺跡断崖から進入可能。王都ローデイルの外郭や火山館など、終盤へ向けた最高峰の戦力（冒涜の聖剣、鈴玉[2]、無限FP霊薬）が集まります。',
+    mapImage: 'images/maps/altus_map.png',
     mapFragments: [
       { name: 'アルター高原', location: '大昇降機を出て街道を進んだ北の分岐点' },
       { name: 'ゲルミア火山', location: '罪人橋を渡って火山山道を登った先の石柱' },
@@ -168,6 +173,7 @@ export const regionsData: RegionMapInfo[] = [
     enName: 'Underground Rivers & Mohgwyn Dynasty',
     recommendedLevel: 'Lv. 60 〜 120 (※稼ぎのみならLv.30可)',
     summary: '狭間の地下に広がる星空のような地下世界（シーフラ河・永遠の都ノクローン・深き根の底・モーグウィン王朝）。最強の遺灰「写し身の雫」や、全プレイヤーの稼ぎの終着点であるモーグウィン王朝が存在します。',
+    mapImage: 'images/maps/siofra_map.png',
     mapFragments: [
       { name: 'シーフラ河', location: '角骸の霊場の手前の遺体' },
       { name: 'エインセル河', location: 'ウルの王朝遺跡の広場の遺体' },
