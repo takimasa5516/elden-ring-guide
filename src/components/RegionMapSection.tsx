@@ -175,12 +175,15 @@ export const RegionMapSection: React.FC = () => {
 
         {/* Map Canvas with Interactive Overlay Pins */}
         <div className="space-y-2">
-          <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-xl overflow-hidden border border-elden-gold/30 bg-[#121418] shadow-2xl group select-none">
+          <div 
+            className="relative w-full max-w-4xl mx-auto rounded-xl overflow-hidden border border-elden-gold/30 bg-[#121418] shadow-2xl group select-none"
+            style={{ aspectRatio: currentRegion.aspectRatio }}
+          >
             {/* Base Map Image */}
             <img
               src={getMapImageUrl(currentRegion.mapImage)}
               alt={`${currentRegion.name} の公式マップ`}
-              className="w-full h-full object-cover object-center filter brightness-95 contrast-105 transition-transform duration-500"
+              className="w-full h-full object-contain filter brightness-95 contrast-105 transition-transform duration-500"
             />
 
             {/* Subtle Vignette Overlay */}
@@ -381,7 +384,10 @@ export const RegionMapSection: React.FC = () => {
           </div>
 
           <div className="flex-1 relative rounded-xl overflow-auto border border-elden-gold/30 bg-[#0a0c0f] flex items-center justify-center p-2">
-            <div className="relative max-w-5xl w-full aspect-[16/10] sm:aspect-[16/9]">
+            <div 
+              className="relative max-w-3xl w-full"
+              style={{ aspectRatio: currentRegion.aspectRatio }}
+            >
               <img
                 src={getMapImageUrl(currentRegion.mapImage)}
                 alt={currentRegion.name}
