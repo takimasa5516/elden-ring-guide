@@ -3,23 +3,19 @@ import { regionsData, MapPin } from '../data/regionMapData';
 import {
   Map,
   MapPin as PinIcon,
-  AlertTriangle,
   Compass,
-  Check,
-  Sparkles,
-  Church,
-  Pickaxe,
-  Landmark,
-  TreePine,
   Eye,
   Maximize2,
   X,
+  ListOrdered,
+  Tag,
 } from 'lucide-react';
 
 export const RegionMapSection: React.FC = () => {
   const [selectedRegionId, setSelectedRegionId] = useState<string>(regionsData[0].id);
   const [selectedPin, setSelectedPin] = useState<MapPin | null>(regionsData[0].pins[0]);
-  const [showPins, setShowPins] = useState<boolean>(true);
+  // pinMode: 'all' (地名＋番号), 'compact' (番号のみ), 'none' (ピンなし・白地図)
+  const [pinMode, setPinMode] = useState<'all' | 'compact' | 'none'>('all');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const currentRegion = regionsData.find((r) => r.id === selectedRegionId) || regionsData[0];
@@ -37,18 +33,11 @@ export const RegionMapSection: React.FC = () => {
     setSelectedPin(newReg.pins[0] || null);
   };
 
-  const getPinIcon = (type: MapPin['type']) => {
-    switch (type) {
-      case 'church':
-        return <Church className="w-3.5 h-3.5 text-red-400" />;
-      case 'mine':
-        return <Pickaxe className="w-3.5 h-3.5 text-cyan-400" />;
-      case 'tree':
-        return <TreePine className="w-3.5 h-3.5 text-emerald-400" />;
-      case 'ruins':
-        return <Landmark className="w-3.5 h-3.5 text-amber-400" />;
-      default:
-        return <Sparkles className="w-3.5 h-3.5 text-elden-gold" />;
+  const scrollToPinInList = (pin: MapPin) => {
+    setSelectedPin(pin);
+    const el = document.getElementById(`spot-card-${pin.id}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 
@@ -58,15 +47,15 @@ export const RegionMapSection: React.FC = () => {
       <div className="bg-elden-panel p-4 sm:p-6 rounded-2xl border border-elden-border space-y-2">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-elden-gold/15 border border-elden-gold/30 text-elden-gold-light text-xs font-serif font-bold">
           <Map className="w-3.5 h-3.5 text-elden-gold" />
-          <span>INTERACTIVE MAP GUIDE • 実物マップ画像 ＆ スポット配置</span>
+          <span>INTERACTIVE MAP GUIDE • 地方別 地名＆訪問ポイント完全網羅</span>
         </div>
         <h2 className="text-xl sm:text-2xl font-bold text-white font-serif flex items-center gap-2">
           <Compass className="w-6 h-6 text-elden-gold" />
-          <span>地域ごとの探索マップ ＆ 重要スポット配置</span>
+          <span>地域ごとの探索マップ ＆ 訪問ポイント配置</span>
         </h2>
         <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-          各地域の実際の地図画像（地形・街道・祝福・星印）を表示しています。
-          マップ上のピンをタップすると下部に詳細が表示され、<strong>「拡大表示」ボタン</strong>で地図全体を高精細に閲覧できます。
+          Gamerch準拠で各地方の主要ランドマーク・ダンジョン・祝福・教会を番号付きで完全配置しています。<br className="hidden sm:inline" />
+          上部の切り替えボタンで<strong>「地名＋番号表示」「番号のみ」「地名なし（白地図モード）」</strong>を自在に切り替え可能です。
         </p>
       </div>
 
@@ -86,6 +75,11 @@ export const RegionMapSection: React.FC = () => {
             >
               <PinIcon className="w-3.5 h-3.5 shrink-0" />
               <span>{reg.name.split(' ＆ ')[0]}</span>
+              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                isSelected ? 'bg-black/30 text-black font-bold' : 'bg-black/50 text-gray-400'
+              }`}>
+                {reg.pins.length}
+              </span>
             </button>
           );
         })}
@@ -99,208 +93,326 @@ export const RegionMapSection: React.FC = () => {
             <span className="text-[10px] font-mono text-gray-400 uppercase block">
               {currentRegion.enName}
             </span>
-            <h3 className="text-xl sm:text-2xl font-bold text-white font-serif">
-              {currentRegion.name}
-            </h3>
-          </div>
-
-          <div className="flex items-center gap-2 self-start sm:self-auto">
-            {/* Toggle Pins Button */}
-            <button
-              onClick={() => setShowPins(!showPins)}
-              className={`px-3 py-1.5 rounded-lg border text-xs font-medium flex items-center gap-1.5 transition-colors ${
-                showPins
-                  ? 'bg-elden-gold/20 text-elden-gold-light border-elden-gold/40'
-                  : 'bg-elden-card text-gray-400 border-elden-border hover:text-white'
-              }`}
-            >
-              <Eye className="w-3.5 h-3.5" />
-              <span>ピン表示: {showPins ? 'ON' : 'OFF'}</span>
-            </button>
-
-            {/* Fullscreen Zoom Button */}
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="px-3 py-1.5 rounded-lg border border-elden-border bg-elden-card hover:border-elden-gold text-xs text-gray-300 hover:text-white flex items-center gap-1.5 transition-colors"
-            >
-              <Maximize2 className="w-3.5 h-3.5 text-elden-gold" />
-              <span>地図を拡大</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Visual Map Canvas with Real Elden Ring Image Background */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs text-gray-400">
-            <span className="flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-elden-gold" />
-              <span>地図上のピンまたは地図画像をタップして詳細・拡大を確認</span>
-            </span>
-            <div className="hidden sm:flex items-center gap-3 text-[11px]">
-              <span className="flex items-center gap-1 text-red-400"><Church className="w-3 h-3" /> 教会(雫)</span>
-              <span className="flex items-center gap-1 text-cyan-400"><Pickaxe className="w-3 h-3" /> 坑道(鍛石)</span>
-              <span className="flex items-center gap-1 text-emerald-400"><TreePine className="w-3 h-3" /> 黄金樹(霊薬)</span>
-              <span className="flex items-center gap-1 text-amber-400"><Landmark className="w-3 h-3" /> 拠点/廃墟</span>
-            </div>
-          </div>
-
-          <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-[#0c0d10] rounded-2xl border-2 border-elden-gold/50 overflow-hidden shadow-2xl flex items-center justify-center select-none group">
-            {/* Real Map Graphic Background */}
-            <img
-              src={getMapImageUrl(currentRegion.mapImage)}
-              alt={`${currentRegion.name} の地図`}
-              className="absolute inset-0 w-full h-full object-contain sm:object-cover object-center transition-all duration-300 pointer-events-none"
-              loading="eager"
-            />
-
-            {/* Subtle Vignette Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
-
-            {/* Watermark Label */}
-            <div className="absolute top-3 left-3 px-2.5 py-1 rounded bg-black/80 backdrop-blur-md border border-elden-gold/40 text-xs font-serif text-elden-gold-light font-bold pointer-events-none z-10">
-              📍 {currentRegion.name}
-            </div>
-
-            {/* Interactive Pins on the Map */}
-            {showPins &&
-              currentRegion.pins.map((pin) => {
-                const isSelected = selectedPin?.id === pin.id;
-                return (
-                  <button
-                    key={pin.id}
-                    onClick={() => setSelectedPin(pin)}
-                    style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
-                    className={`absolute -translate-x-1/2 -translate-y-1/2 z-20 transition-all ${
-                      isSelected ? 'scale-125 z-30' : 'hover:scale-110'
-                    }`}
-                  >
-                    <div
-                      className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shadow-2xl border-2 transition-all ${
-                        isSelected
-                          ? 'bg-elden-gold border-white text-black shadow-[0_0_20px_#c8aa6e]'
-                          : 'bg-[#121418]/90 border-elden-gold/70 text-white hover:border-elden-gold'
-                      }`}
-                    >
-                      {getPinIcon(pin.type)}
-                    </div>
-
-                    {/* Pin Label Tooltip */}
-                    <span
-                      className={`absolute top-full left-1/2 -translate-x-1/2 mt-1 px-1.5 py-0.5 rounded text-[9px] font-sans font-bold whitespace-nowrap pointer-events-none transition-all ${
-                        isSelected
-                          ? 'bg-black/95 text-elden-gold-light border border-elden-gold shadow-lg opacity-100'
-                          : 'bg-black/80 text-gray-300 opacity-0 group-hover:opacity-90'
-                      }`}
-                    >
-                      {pin.name.split(' / ')[0]}
-                    </span>
-                  </button>
-                );
-              })}
-          </div>
-        </div>
-
-        {/* Selected Pin Details Box */}
-        {selectedPin && (
-          <div className="bg-black/70 border border-elden-gold/60 rounded-xl p-4 sm:p-5 space-y-2 animate-fadeIn">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-elden-gold/20 text-elden-gold">
-                  {getPinIcon(selectedPin.type)}
-                </div>
-                <div>
-                  <span className="text-[10px] text-gray-400 font-mono uppercase block">{selectedPin.typeLabel}</span>
-                  <h4 className="text-base sm:text-lg font-bold text-white font-serif">{selectedPin.name}</h4>
-                </div>
-              </div>
-              <span className="text-xs px-2.5 py-1 rounded bg-black border border-elden-gold/40 text-elden-gold font-mono">
-                マップ座標: X {selectedPin.x}% / Y {selectedPin.y}%
+            <div className="flex items-center gap-3 mt-0.5">
+              <h3 className="text-xl sm:text-2xl font-bold text-white font-serif">
+                {currentRegion.name}
+              </h3>
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-elden-gold/20 text-elden-gold border border-elden-gold/40 font-mono font-bold">
+                適正 {currentRegion.recommendedLevel}
               </span>
             </div>
+          </div>
 
-            <div className="mt-2 text-xs sm:text-sm text-yellow-300 font-bold bg-yellow-950/40 p-2.5 rounded-lg border border-yellow-800/40">
-              💎 主な入手アイテム: {selectedPin.keyItems}
+          {/* Map Display Toggles */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Pin Mode Toggle Buttons */}
+            <div className="inline-flex p-0.5 bg-elden-card rounded-lg border border-elden-border">
+              <button
+                onClick={() => setPinMode('all')}
+                className={`px-2.5 py-1 rounded text-xs font-medium transition-all flex items-center gap-1 ${
+                  pinMode === 'all'
+                    ? 'bg-elden-gold text-black font-bold shadow'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+                title="地図上に地名ラベルと番号を表示"
+              >
+                <Tag className="w-3 h-3" />
+                <span>地名＋番号</span>
+              </button>
+              <button
+                onClick={() => setPinMode('compact')}
+                className={`px-2.5 py-1 rounded text-xs font-medium transition-all flex items-center gap-1 ${
+                  pinMode === 'compact'
+                    ? 'bg-elden-gold text-black font-bold shadow'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+                title="番号ピンのみ表示"
+              >
+                <ListOrdered className="w-3 h-3" />
+                <span>番号のみ</span>
+              </button>
+              <button
+                onClick={() => setPinMode('none')}
+                className={`px-2.5 py-1 rounded text-xs font-medium transition-all flex items-center gap-1 ${
+                  pinMode === 'none'
+                    ? 'bg-elden-gold text-black font-bold shadow'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+                title="ピンを非表示にして白地図のみ表示"
+              >
+                <Eye className="w-3 h-3" />
+                <span>地名なし(白地図)</span>
+              </button>
             </div>
 
-            <p className="text-xs sm:text-sm text-gray-300 leading-relaxed pt-1">
-              {selectedPin.description}
-            </p>
+            {/* Expand Modal Button */}
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="px-3 py-1 bg-elden-card border border-elden-border hover:border-elden-gold/60 text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-all flex items-center gap-1.5"
+            >
+              <Maximize2 className="w-3.5 h-3.5 text-elden-gold" />
+              <span>全画面拡大</span>
+            </button>
           </div>
-        )}
+        </div>
 
-        {/* Map Fragments in this Region */}
-        <div className="bg-elden-card/80 p-4 rounded-xl border border-elden-border space-y-2">
-          <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-            <Compass className="w-4 h-4 text-cyan-400" />
-            <span>この地域の地図断片の場所</span>
-          </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+        {/* Exploration Flow & Summary */}
+        <div className="p-3.5 sm:p-4 rounded-xl bg-elden-card border border-elden-border/80 text-xs sm:text-sm text-gray-300 leading-relaxed">
+          <p className="mb-2 font-medium text-gray-200">{currentRegion.summary}</p>
+          <div className="flex flex-wrap gap-2 pt-2 border-t border-white/5">
+            <span className="text-elden-gold font-bold shrink-0">地図断片の場所:</span>
             {currentRegion.mapFragments.map((mf, idx) => (
-              <div key={idx} className="p-2.5 rounded-lg bg-black/40 border border-white/5 text-xs">
-                <strong className="text-cyan-300 block">{mf.name}</strong>
-                <span className="text-gray-400 text-[11px]">📍 {mf.location}</span>
-              </div>
+              <span
+                key={idx}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-black/40 text-gray-300 border border-gray-700 text-xs"
+              >
+                <PinIcon className="w-3 h-3 text-elden-gold" />
+                <span className="font-bold text-white">{mf.name}</span>: {mf.location}
+              </span>
             ))}
           </div>
         </div>
 
-        {/* Exploration Flow & Hazards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Flow */}
-          <div className="bg-elden-card/80 p-4 rounded-xl border border-elden-border space-y-2">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-400" />
-              <span>快適おすすめ探索ルート</span>
-            </h4>
-            <div className="space-y-1.5 text-xs text-gray-300">
-              {currentRegion.explorationFlow.map((flow, idx) => (
-                <p key={idx} className="leading-relaxed bg-black/20 p-2 rounded">{flow}</p>
-              ))}
-            </div>
+        {/* Map Canvas with Interactive Overlay Pins */}
+        <div className="space-y-2">
+          <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-xl overflow-hidden border border-elden-gold/30 bg-[#121418] shadow-2xl group select-none">
+            {/* Base Map Image */}
+            <img
+              src={getMapImageUrl(currentRegion.mapImage)}
+              alt={`${currentRegion.name} の公式マップ`}
+              className="w-full h-full object-cover object-center filter brightness-95 contrast-105 transition-transform duration-500"
+            />
+
+            {/* Subtle Vignette Overlay */}
+            <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_60px_rgba(0,0,0,0.6)]" />
+
+            {/* Interactive Overlay Pins */}
+            {pinMode !== 'none' &&
+              currentRegion.pins.map((pin) => {
+                const isSelected = selectedPin?.id === pin.id;
+                return (
+                  <div
+                    key={pin.id}
+                    style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
+                    className="absolute -translate-x-1/2 -translate-y-1/2 z-20 cursor-pointer"
+                    onClick={() => scrollToPinInList(pin)}
+                  >
+                    <div className="relative flex items-center group/pin">
+                      {/* Numbered Pin Icon */}
+                      <div
+                        className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-all transform ${
+                          isSelected
+                            ? 'bg-elden-gold text-black ring-4 ring-elden-gold/40 scale-125 z-30 shadow-[0_0_12px_#c8aa6e]'
+                            : 'bg-black/90 text-elden-gold border-2 border-elden-gold hover:scale-115 hover:bg-elden-gold hover:text-black shadow-md'
+                        }`}
+                      >
+                        {pin.number}
+                      </div>
+
+                      {/* Name Label Tag (Visible when pinMode === 'all' or hovered) */}
+                      {(pinMode === 'all' || isSelected) && (
+                        <div
+                          className={`ml-1.5 px-2 py-0.5 rounded shadow-lg backdrop-blur-md whitespace-nowrap text-[10px] sm:text-[11px] font-bold border transition-all ${
+                            isSelected
+                              ? 'bg-elden-gold text-black border-white shadow-[0_0_10px_rgba(200,170,110,0.5)] z-30'
+                              : 'bg-black/85 text-white border-elden-gold/50 group-hover/pin:border-elden-gold z-20'
+                          }`}
+                        >
+                          <span>{pin.name}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
           </div>
 
-          {/* Hazards */}
-          <div className="bg-elden-card/80 p-4 rounded-xl border border-elden-border space-y-2">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-              <AlertTriangle className="w-4 h-4 text-red-400" />
-              <span>地域の危険 ＆ 即死エネミー注意報</span>
-            </h4>
-            <div className="space-y-1.5 text-xs text-gray-300">
-              {currentRegion.hazards.map((hazard, idx) => (
-                <p key={idx} className="leading-relaxed bg-red-950/20 border border-red-900/30 p-2 rounded text-red-200">{hazard}</p>
-              ))}
+          <div className="flex items-center justify-between text-[11px] text-gray-400 px-1">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-elden-gold animate-pulse inline-block" />
+              マップ上のピンをタップすると、下部の一覧と連動して詳細が表示されます。
+            </span>
+            <span className="font-mono text-elden-gold">全 {currentRegion.pins.length} 箇所 網羅</span>
+          </div>
+        </div>
+
+        {/* Selected Pin Mini Info Box */}
+        {selectedPin && (
+          <div className="p-4 rounded-xl bg-gradient-to-r from-elden-card to-elden-panel border border-elden-gold/60 shadow-lg animate-fadeIn flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-full bg-elden-gold text-black font-bold font-mono text-sm flex items-center justify-center shrink-0 shadow-md">
+                {selectedPin.number}
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="text-base font-bold text-white">{selectedPin.name}</h4>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-black/60 border border-gray-700 text-gray-300 font-mono">
+                    {selectedPin.typeLabel}
+                  </span>
+                </div>
+                <p className="text-xs text-elden-gold-light mt-0.5 font-bold">
+                  最重要回収: {selectedPin.keyItems}
+                </p>
+                <p className="text-xs text-gray-300 mt-1 leading-relaxed">
+                  {selectedPin.description}
+                </p>
+              </div>
             </div>
+            <button
+              onClick={() => scrollToPinInList(selectedPin)}
+              className="self-end sm:self-center px-3 py-1.5 bg-elden-gold/20 hover:bg-elden-gold text-elden-gold hover:text-black border border-elden-gold/40 rounded-lg text-xs font-bold transition-all shrink-0"
+            >
+              リストへ移動 ↓
+            </button>
+          </div>
+        )}
+
+        {/* Gamerch-Style Complete Visiting Points Directory */}
+        <div className="space-y-4 pt-4 border-t border-elden-border">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <ListOrdered className="w-5 h-5 text-elden-gold" />
+              <h3 className="text-lg font-bold text-white font-serif">
+                {currentRegion.name} 訪問ポイント完全一覧表
+              </h3>
+            </div>
+            <span className="text-xs text-gray-400 font-mono">
+              ※マップの番号【1】〜【{currentRegion.pins.length}】と完全対応
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {currentRegion.pins.map((pin) => {
+              const isSelected = selectedPin?.id === pin.id;
+              return (
+                <div
+                  id={`spot-card-${pin.id}`}
+                  key={pin.id}
+                  onClick={() => setSelectedPin(pin)}
+                  className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+                    isSelected
+                      ? 'bg-[#1a1712] border-elden-gold shadow-md ring-1 ring-elden-gold'
+                      : 'bg-elden-card/80 border-elden-border hover:border-elden-gold/50 hover:bg-elden-panel'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-2 mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold shrink-0 ${
+                            isSelected
+                              ? 'bg-elden-gold text-black shadow'
+                              : 'bg-black/60 text-elden-gold border border-elden-gold/40'
+                          }`}
+                        >
+                          {pin.number}
+                        </span>
+                        <h4 className="text-sm font-bold text-white leading-snug">
+                          {pin.name}
+                        </h4>
+                      </div>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-black/50 border border-gray-700 text-gray-300 font-mono shrink-0">
+                        {pin.typeLabel}
+                      </span>
+                    </div>
+
+                    <div className="pl-8 space-y-1">
+                      <div className="p-2 rounded bg-black/40 border border-white/5 text-xs text-elden-gold-light font-bold">
+                        🎁 {pin.keyItems}
+                      </div>
+                      <p className="text-xs text-gray-300 leading-relaxed pt-1">
+                        {pin.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pl-8 pt-2 mt-2 border-t border-white/5 flex items-center justify-between text-[10px] text-gray-400 font-mono">
+                    <span>座標: X {pin.x}% / Y {pin.y}%</span>
+                    {isSelected && <span className="text-elden-gold font-bold">● マップ選択中</span>}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
 
       {/* Fullscreen Map Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md p-4 sm:p-8 flex flex-col items-center justify-center animate-fadeIn">
-          <div className="w-full max-w-5xl flex items-center justify-between pb-3 text-white">
-            <h3 className="text-lg font-bold font-serif text-elden-gold-light flex items-center gap-2">
-              <Map className="w-5 h-5 text-elden-gold" />
-              <span>{currentRegion.name} 高精細マップ</span>
-            </h3>
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col p-2 sm:p-6 animate-fadeIn">
+          <div className="flex items-center justify-between pb-3 px-2">
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-bold text-white font-serif">
+                {currentRegion.name} 全画面マップ
+              </h3>
+              <div className="inline-flex p-0.5 bg-elden-card rounded-lg border border-elden-border text-xs">
+                <button
+                  onClick={() => setPinMode('all')}
+                  className={`px-2.5 py-1 rounded ${
+                    pinMode === 'all' ? 'bg-elden-gold text-black font-bold' : 'text-gray-300'
+                  }`}
+                >
+                  地名＋番号
+                </button>
+                <button
+                  onClick={() => setPinMode('compact')}
+                  className={`px-2.5 py-1 rounded ${
+                    pinMode === 'compact' ? 'bg-elden-gold text-black font-bold' : 'text-gray-300'
+                  }`}
+                >
+                  番号のみ
+                </button>
+                <button
+                  onClick={() => setPinMode('none')}
+                  className={`px-2.5 py-1 rounded ${
+                    pinMode === 'none' ? 'bg-elden-gold text-black font-bold' : 'text-gray-300'
+                  }`}
+                >
+                  白地図(地名なし)
+                </button>
+              </div>
+            </div>
             <button
               onClick={() => setIsModalOpen(false)}
-              className="p-2 rounded-lg bg-elden-panel border border-elden-border hover:border-elden-gold text-gray-300 hover:text-white"
+              className="p-2 rounded-xl bg-elden-card border border-elden-border text-gray-300 hover:text-white"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="w-full max-w-5xl max-h-[80vh] overflow-auto rounded-xl border-2 border-elden-gold/50 bg-[#0a0b0d] p-2 flex items-center justify-center">
-            <img
-              src={getMapImageUrl(currentRegion.mapImage)}
-              alt={currentRegion.name}
-              className="w-full h-auto object-contain rounded-lg"
-            />
+          <div className="flex-1 relative rounded-xl overflow-auto border border-elden-gold/30 bg-[#0a0c0f] flex items-center justify-center p-2">
+            <div className="relative max-w-5xl w-full aspect-[16/10] sm:aspect-[16/9]">
+              <img
+                src={getMapImageUrl(currentRegion.mapImage)}
+                alt={currentRegion.name}
+                className="w-full h-full object-contain"
+              />
+              {pinMode !== 'none' &&
+                currentRegion.pins.map((pin) => (
+                  <div
+                    key={pin.id}
+                    style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
+                    className="absolute -translate-x-1/2 -translate-y-1/2 z-20 cursor-pointer"
+                    onClick={() => {
+                      setSelectedPin(pin);
+                      setIsModalOpen(false);
+                      scrollToPinInList(pin);
+                    }}
+                  >
+                    <div className="flex items-center group">
+                      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-black text-elden-gold font-bold font-mono text-xs flex items-center justify-center border-2 border-elden-gold hover:scale-125 hover:bg-elden-gold hover:text-black transition-all shadow-md">
+                        {pin.number}
+                      </div>
+                      {pinMode === 'all' && (
+                        <span className="ml-1 px-2 py-0.5 rounded bg-black/90 text-white border border-elden-gold/60 text-[10px] sm:text-xs font-bold whitespace-nowrap">
+                          {pin.name}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+            </div>
           </div>
-
-          <p className="text-xs text-gray-400 mt-2 text-center">
-            Escキーまたは右上の ✕ ボタンで閉じます
-          </p>
         </div>
       )}
     </div>

@@ -179,3 +179,36 @@ export interface PhysickComboPreset {
   synergy: string;
 }
 
+// --- Player Techniques & Magic Guides ---
+export interface PlayerTechnique {
+  id: string;
+  name: string;
+  tag: string;
+  command: string;
+  description: string;
+  whyCrucial: string;
+  practiceTip: string;
+}
+
+export interface SpellEquipStep {
+  step: number;
+  title: string;
+  command: string;
+  detail: string;
+  caution?: string;
+}
+
+export interface ClassRecommendedSpell {
+  id: string;
+  name: string;
+  category: 'sorcery' | 'incantation';
+  targetClass: string;
+  reqStats: string;
+  fpCost: string;
+  location: string;
+  howToGet: string;
+  feature: string;
+  whyBest: string;
+}
+
+
