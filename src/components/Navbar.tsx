@@ -19,28 +19,28 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, checked
   const navItems = [
     {
       id: 'progression-hub',
-      label: '進行・道標 (迷子・NPC・稼ぎ)',
+      label: '進行・道標',
       shortLabel: '進行・道標',
       icon: Compass,
       matchTabs: ['progression-hub', 'lost-guide', 'progression', 'npc-safety', 'runes'],
     },
     {
       id: 'regions',
-      label: '地域別マップ (全5地方)',
+      label: '地域マップ',
       shortLabel: '地域マップ',
       icon: Map,
       matchTabs: ['regions'],
     },
     {
       id: 'character-hub',
-      label: 'キャラ・育成 (操作・装備・ビルド)',
+      label: 'キャラ・育成',
       shortLabel: 'キャラ育成',
       icon: Target,
       matchTabs: ['character-hub', 'controls', 'classes', 'builds'],
     },
     {
       id: 'equipment-hub',
-      label: '戦技・強化 (戦灰・鍛石・遺灰)',
+      label: '戦技・強化',
       shortLabel: '戦技・強化',
       icon: Swords,
       matchTabs: ['equipment-hub', 'ashes', 'smithing', 'useful'],
@@ -48,7 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, checked
     // --- 状態保持が必要なツール（統合除外・独立維持） ---
     {
       id: 'physick',
-      label: '霊薬配合シミュレーター',
+      label: '霊薬シミュ',
       shortLabel: '霊薬配合',
       icon: FlaskConical,
       isStateful: true,
@@ -56,8 +56,8 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, checked
     },
     {
       id: 'upgrades',
-      label: '強化アイテム・地図',
-      shortLabel: '強化・地図',
+      label: '強化・地図',
+      shortLabel: '強化地図',
       icon: MapPin,
       isStateful: true,
       matchTabs: ['upgrades'],
@@ -83,7 +83,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, checked
       {/* Desktop Navigation (Top Sticky) */}
       <nav className="hidden md:block sticky top-0 z-40 bg-[#0e1014]/95 backdrop-blur-md border-b border-elden-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-2.5 space-x-1 lg:space-x-1.5 overflow-x-auto no-scrollbar">
+          <div className="flex items-center justify-center py-2.5 space-x-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = item.matchTabs.includes(activeTab);
@@ -91,7 +91,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, checked
                 <button
                   key={item.id}
                   onClick={() => handleTabClick(item.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs lg:text-sm font-medium transition-all whitespace-nowrap ${
+                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs lg:text-sm font-medium transition-all whitespace-nowrap ${
                     isActive
                       ? 'bg-elden-gold text-black font-bold font-serif shadow-md'
                       : item.isStateful
@@ -115,9 +115,9 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, checked
         </div>
       </nav>
 
-      {/* Mobile Bottom Navigation (Streamlined 7 items bar with clear touch targets) */}
+      {/* Mobile Bottom Navigation (Streamlined 7-column grid fitting all screens) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0d0f12]/95 backdrop-blur-lg border-t border-elden-gold/30 pb-safe">
-        <div className="flex items-center justify-between overflow-x-auto no-scrollbar px-1 py-1 h-14">
+        <div className="grid grid-cols-7 w-full h-14 px-1 py-1 items-center">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = item.matchTabs.includes(activeTab);
@@ -125,16 +125,16 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, checked
               <button
                 key={item.id}
                 onClick={() => handleTabClick(item.id)}
-                className={`flex flex-col items-center justify-center min-w-[52px] flex-1 px-0.5 py-1 rounded-lg relative transition-all shrink-0 ${
+                className={`flex flex-col items-center justify-center w-full h-full py-0.5 rounded-lg relative transition-all ${
                   isActive
-                    ? 'bg-elden-gold/15 text-elden-gold-light'
+                    ? 'bg-elden-gold/15 text-elden-gold-light font-bold'
                     : item.isStateful
                     ? 'text-yellow-300/80 active:text-yellow-200'
                     : 'text-gray-400 active:text-gray-200'
                 }`}
               >
                 {isActive && (
-                  <div className="absolute top-0 left-2 right-2 h-0.5 bg-elden-gold shadow-[0_0_8px_#c8aa6e]" />
+                  <div className="absolute top-0 left-1 right-1 h-0.5 bg-elden-gold shadow-[0_0_8px_#c8aa6e]" />
                 )}
                 <div className="relative">
                   <Icon className={`w-4 h-4 mb-0.5 ${
