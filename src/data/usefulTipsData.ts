@@ -176,3 +176,155 @@ export const essentialTricks = [
     solution: '祝福のメニュー「大ルーン」で装備し、消費アイテム「ルーンの弧」を使うと、死ぬまでの間【全ステータスが+5（合計40レベル分！）】永続上昇します。勝てないボスに挑む際の最大の切り札です。',
   },
 ];
+
+// --- タリスマン枠拡張（タリスマン袋） ---
+export interface TalismanPouchInfo {
+  slotNumber: string;
+  source: string;
+  location: string;
+  timing: string;
+  note: string;
+}
+
+export const talismanPouches: TalismanPouchInfo[] = [
+  {
+    slotNumber: '1枠目 (初期)',
+    source: '初期所持',
+    location: 'キャラ作成時から解放',
+    timing: '開始直後',
+    note: '最初は1個しかタリスマンを装備できません。',
+  },
+  {
+    slotNumber: '2枠目',
+    source: '忌み鬼マルギット撃破',
+    location: 'ストームヴィル城入口の「嵐の丘」',
+    timing: '序盤（ストームヴィル城突入時）',
+    note: 'マルギットを倒すと確定ドロップ。タリスマン袋を拾うと即座に枠が2個に拡張されます。',
+  },
+  {
+    slotNumber: '3枠目',
+    source: '指読みエンヤから授受',
+    location: '円卓の大ルーンの部屋',
+    timing: '序盤〜中盤（大ルーン2個所持時）',
+    note: 'ゴドリックやレナラ等の【大ルーンを2個】所持した状態で、円卓の二本指の前にいる「指読みエンヤ」に話しかけると貰えます。',
+  },
+  {
+    slotNumber: '4枠目 (最大)',
+    source: '最初の王ゴッドフレイ（霊体）撃破',
+    location: '王都ローデイル「黄金樹の大聖堂」',
+    timing: '中盤（王都攻略時）',
+    note: '王都ローデイルの金色に輝くゴッドフレイ（斧持ちの霊体）を倒すと確定ドロップ。これで最大4枠が完成します。',
+  },
+];
+
+// --- ビルド別最強タリスマン4選プリセット ---
+export interface BuildTalismanPreset {
+  buildName: string;
+  badge: string;
+  talismans: {
+    name: string;
+    effect: string;
+    location: string;
+  }[];
+  synergyAdvice: string;
+}
+
+export const buildTalismanPresets: BuildTalismanPreset[] = [
+  {
+    buildName: '脳筋・特大剣 / 大剣バッタビルド',
+    badge: '筋力特化',
+    talismans: [
+      { name: 'ラダゴンの爛れ刻印', effect: '生命・持久・筋力・技量 +5', location: 'ケイリッド「ファロス砦」' },
+      { name: '爪のタリスマン', effect: 'ジャンプ攻撃のダメージ 1.15倍', location: 'ストームヴィル城 屋根の上' },
+      { name: '大壺の武具塊', effect: '最大装備重量 1.19倍 (重鎧可能)', location: 'ケイリッド北西「大壺の騎士3体」撃破' },
+      { name: '竜印の大盾のタリスマン', effect: '物理カット率 +20% (超頑丈化)', location: '聖樹の支えエブレフェール' },
+    ],
+    synergyAdvice: 'ジャンプ強攻撃（バッタ戦法）で敵の体勢を瞬時に崩し、ダウン致命を奪う脳筋の完成形。被ダメージ増加の爛れ刻印を竜印の大盾で完全カバーします。',
+  },
+  {
+    buildName: '技量・神秘 出血二刀流ビルド',
+    badge: '出血特化',
+    talismans: [
+      { name: '血の君主の歓喜', effect: '周囲で出血発生時、攻撃力+20% (20秒)', location: '忌み捨ての地下「血の司祭エスガル」' },
+      { name: 'ミリセントの義手', effect: '技量+5、連続攻撃で攻撃力最大+11%', location: 'ミリセントイベント（風車村以降）' },
+      { name: '腐敗翼剣の徽章', effect: '連続攻撃で攻撃力最大+13%', location: 'ミリセントイベント協力ルート' },
+      { name: '緑亀のタリスマン', effect: 'スタミナ回復速度 +17.7%', location: 'リムグレイブ「呼び水村」地下宝箱' },
+    ],
+    synergyAdvice: '曲剣や刀の二刀流ジャンプL1で出血と連続攻撃バフを同時に爆発させる現代エルデンリング最高峰の瞬間DPS構成です。',
+  },
+  {
+    buildName: '純魔・技魔 魔術師ビルド',
+    badge: '知力特化',
+    talismans: [
+      { name: '魔術師の塊のタリスマン', effect: '魔術の威力を 1.08倍', location: '巨人たちの山嶺「アルビナウ Arikの魔術師塔」' },
+      { name: 'ラダゴンの肖像', effect: '魔術・祈祷の詠唱速度を最速化 (+30仮想技量)', location: 'レアルカリア学院「討論室」2階' },
+      { name: 'ゴッドフレイの肖像', effect: 'タメ魔術・戦技の威力を 1.15倍', location: 'アルター高原「黄金の一族の封牢」' },
+      { name: '魔力の蠍', effect: '魔力攻撃力 +12% (被ダメ+10%)', location: 'セルブスイベント（ラニに刃を渡す前）' },
+    ],
+    synergyAdvice: '詠唱速度を最大まで短縮し、彗星アズールや夜の彗星、名刀月隠の戦技火力を極限まで引き上げる魔術師の理想形です。',
+  },
+  {
+    buildName: '信仰戦士・竜餐祈祷ビルド',
+    badge: '信仰特化',
+    talismans: [
+      { name: '集う信徒の誓布', effect: '祈祷の威力を 1.08倍', location: 'サリアの結晶坑道 ゴーリーイベント' },
+      { name: '信徒の誓布', effect: '祈祷の威力を 1.04倍 (集う信徒と重複可)', location: 'リエーニエ「断崖下の地下墓」' },
+      { name: 'ゴッドフレイの肖像', effect: 'タメ祈祷（雷の槍・黒炎等）の威力を 1.15倍', location: 'アルター高原「黄金の一族の封牢」' },
+      { name: '古き王のタリスマン', effect: 'バフ祈祷（黄金樹に誓って等）の持続時間 1.3倍', location: '崩れゆくファルム・アズラ' },
+    ],
+    synergyAdvice: '2つの誓布を重ねて祈祷基礎威力をブーストし、黄金樹に誓ってなどの長期バフと長距離タメ雷槍で全距離を制圧します。',
+  },
+];
+
+// --- 大ルーンと神授塔の解放ガイド ---
+export interface GreatRuneGuideItem {
+  name: string;
+  boss: string;
+  divineTower: string;
+  towerLocation: string;
+  effect: string;
+  runeArcUsage: string;
+}
+
+export const greatRunesGuide: GreatRuneGuideItem[] = [
+  {
+    name: 'ゴドリックの大ルーン',
+    boss: '接ぎ木のゴドリック (ストームヴィル城)',
+    divineTower: 'リムグレイブの神授塔',
+    towerLocation: 'ストームヴィル城正門から東の長大な橋（大橋の祝福）を渡り、転送門で塔へ。',
+    effect: '全能力値（生命・精神・持久・筋力・技量・知力・信仰・神秘）がすべて【+5】（合計レベル+40相当！）',
+    runeArcUsage: '序盤から終盤まで全プレイヤーの救世主。勝てないボスに挑む時は迷わず「ルーンの弧」を使って全ステータスを爆上げしてください。',
+  },
+  {
+    name: '満月の女王の大ルーン',
+    boss: '満月の女王レナラ (レアルカリア学院)',
+    divineTower: '不要（神授塔なし）',
+    towerLocation: '神授塔へ行く必要なし。レナラ撃破で自動的に永続解放。',
+    effect: '「産まれ直し（ステータス振り直し）」を解放（要「雫の幼生」）。',
+    runeArcUsage: 'ルーンの弧で装備するタイプではなく、レナラの大書庫でステータスをいつでも再配分できるようになるシステム大ルーンです。',
+  },
+  {
+    name: 'ラダーンの大ルーン',
+    boss: '星砕きのラダーン (赤獅子城)',
+    divineTower: 'ケイリッドの神授塔',
+    towerLocation: '竜塚の西から北へ。塔の外壁の木の足場を飛び移りながら登る立体アスレチック。',
+    effect: '最大HP、最大FP、最大スタミナがすべて【+15%】',
+    runeArcUsage: '生命力40以上の中盤〜終盤以降は、ゴドリックの+5固定値よりもラダーンの「15%割合上昇」の方がHP・FPの伸びが上回るため乗り換え推奨。',
+  },
+  {
+    name: 'ライカードの大ルーン',
+    boss: '冒涜の君主ライカード (火山館)',
+    divineTower: '西アルターの神授塔',
+    towerLocation: '王都堀の南端「封印された坑道」を抜け、奥の神授塔へ。',
+    effect: '敵を倒すごとに【最大HPの7% + 80】が回復する。',
+    runeArcUsage: '道中の雑魚敵を倒すだけで聖杯瓶を使わずに無限にHPが全快する究極の探索マラソン用大ルーン。',
+  },
+  {
+    name: 'モーゴットの大ルーン',
+    boss: '忌み王モーゴット (王都ローデイル)',
+    divineTower: '東アルターの神授塔',
+    towerLocation: '王都東門から禁域へ続く大橋。双子の忌み鬼を倒した奥。',
+    effect: '最大HPが【+25%】（全大ルーン中最大のHP増加量）',
+    runeArcUsage: '一撃死が多発する最終盤（ファルムアズラ・聖樹）やマレニア戦で、HPバーを画面半分近くまで伸ばして即死を防ぐ防御最強ルーン。',
+  },
+];

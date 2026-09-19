@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Navbar } from './components/Navbar';
+import { LostGuideSection } from './components/LostGuideSection';
 import { ProgressionSection } from './components/ProgressionSection';
 import { RegionMapSection } from './components/RegionMapSection';
+import { AshesOfWarSection } from './components/AshesOfWarSection';
 import { UsefulTipsSection } from './components/UsefulTipsSection';
 import { NpcSafetySection } from './components/NpcSafetySection';
 import { SmithingSection } from './components/SmithingSection';
@@ -13,11 +15,13 @@ import { BuildsSection } from './components/BuildsSection';
 import { UpgradesSection } from './components/UpgradesSection';
 import { RuneFarmingSection } from './components/RuneFarmingSection';
 import { ChecklistSection } from './components/ChecklistSection';
+import { SearchModal } from './components/SearchModal';
 import { upgradesList } from './data/upgradesData';
 import { Github, Heart, Sparkles } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('progression');
+  const [activeTab, setActiveTab] = useState<string>('lost-guide');
+  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>(() => {
     try {
       const saved = localStorage.getItem('elden_ring_guide_checklist');
@@ -35,6 +39,25 @@ export const App: React.FC = () => {
     }
   }, [checkedItems]);
 
+  // Global search keyboard shortcuts (Cmd+K, Ctrl+K, or /)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchOpen((prev) => !prev);
+      } else if (
+        e.key === '/' &&
+        (e.target as HTMLElement)?.tagName !== 'INPUT' &&
+        (e.target as HTMLElement)?.tagName !== 'TEXTAREA'
+      ) {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const toggleItem = (id: string) => {
     setCheckedItems((prev) => ({
       ...prev,
@@ -46,6 +69,11 @@ export const App: React.FC = () => {
     setCheckedItems({});
   };
 
+  const navigateTab = (tabId: string) => {
+    setActiveTab(tabId);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const checkedCount = Object.values(checkedItems).filter(Boolean).length;
   const totalChecklistCount = upgradesList.length;
 
@@ -54,22 +82,25 @@ export const App: React.FC = () => {
       {/* Top Header */}
       <Header
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={navigateTab}
         checkedCount={checkedCount}
         totalChecklistCount={totalChecklistCount}
+        onOpenSearch={() => setIsSearchOpen(true)}
       />
 
       {/* Navigation (Desktop Top Sticky / Mobile Bottom Stick) */}
       <Navbar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={navigateTab}
         checkedCount={checkedCount}
       />
 
       {/* Main Content Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 md:pb-12">
+        {activeTab === 'lost-guide' && <LostGuideSection onNavigateTab={navigateTab} />}
         {activeTab === 'progression' && <ProgressionSection />}
         {activeTab === 'regions' && <RegionMapSection />}
+        {activeTab === 'ashes' && <AshesOfWarSection />}
         {activeTab === 'useful' && <UsefulTipsSection />}
         {activeTab === 'npc-safety' && <NpcSafetySection />}
         {activeTab === 'smithing' && <SmithingSection />}
@@ -89,6 +120,13 @@ export const App: React.FC = () => {
           />
         )}
       </main>
+
+      {/* Global Search Modal */}
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onSelectTab={navigateTab}
+      />
 
       {/* Footer */}
       <footer className="border-t border-elden-border/60 bg-[#08090b] py-8 text-center text-xs text-gray-500 mb-14 md:mb-0">

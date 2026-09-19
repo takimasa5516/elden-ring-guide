@@ -211,4 +211,82 @@ export interface ClassRecommendedSpell {
   whyBest: string;
 }
 
+// --- Lost Guide (迷ったときにすべきこと) ---
+export interface LostSituation {
+  id: string;
+  title: string;
+  subtitle: string;
+  iconName: string;
+  badge: string;
+  badgeColor: string;
+  summary: string;
+  causes: string[];
+  actionSteps: {
+    step: number;
+    title: string;
+    description: string;
+    recommendedTarget?: string;
+    navigationTab?: string;
+  }[];
+  expertAdvice: string;
+}
+
+// --- Ashes of War & Whetblades (戦灰・戦技・砥石刃) ---
+export interface AshOfWarItem {
+  id: string;
+  name: string;
+  skillName: string;
+  affinity: string; // 標準, 重厚, 鋭利, 魔力, 冷気, 炎, 血 など
+  weaponTypes: string; // 剣/斧/槍など
+  fpCost: string;
+  location: string;
+  howToGet: string;
+  feature: string;
+  whyStrong: string;
+  recommendedFor: string;
+}
+
+export interface WhetbladeItem {
+  id: string;
+  name: string;
+  affinities: string[];
+  location: string;
+  howToGet: string;
+  feature: string;
+}
+
+// --- Incantations & Sacred Seals (祈祷・聖印) ---
+export interface IncantationItem {
+  id: string;
+  name: string;
+  category: 'buff' | 'heal' | 'dragon' | 'attack';
+  reqFaith: number;
+  reqArcane?: number;
+  fpCost: string;
+  location: string;
+  howToGet: string;
+  feature: string;
+  whyMustHave: string;
+}
+
+export interface SacredSealItem {
+  id: string;
+  name: string;
+  scaling: string;
+  specialEffect: string;
+  location: string;
+  howToGet: string;
+}
+
+// --- Global Search (サイト内横断検索) ---
+export interface SearchItem {
+  id: string;
+  title: string;
+  category: string;
+  tabId: string;
+  description: string;
+  keywords: string[];
+}
+
+
 

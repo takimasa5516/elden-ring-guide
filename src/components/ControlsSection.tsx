@@ -8,6 +8,11 @@ import {
 } from '../data/controlsData';
 import { Platform } from '../types';
 import {
+  incantationEquipSteps,
+  mustHaveIncantations,
+  sacredSealsList,
+} from '../data/incantationsData';
+import {
   ShieldAlert,
   Info,
   CheckCircle,
@@ -18,11 +23,14 @@ import {
   Wand2,
   Lightbulb,
   AlertTriangle,
+  Flame,
+  Scroll,
+  Shield,
 } from 'lucide-react';
 
 export const ControlsSection: React.FC = () => {
   const [platform, setPlatform] = useState<Platform>('ps');
-  const [activeSubTab, setActiveSubTab] = useState<'buttons' | 'techniques' | 'magic-guide' | 'magic-spells'>('buttons');
+  const [activeSubTab, setActiveSubTab] = useState<'buttons' | 'techniques' | 'magic-guide' | 'magic-spells' | 'incantations'>('buttons');
   const [spellClassFilter, setSpellClassFilter] = useState<string>('all');
 
   const filteredSpells = classRecommendedSpells.filter((s) => {
@@ -159,6 +167,17 @@ export const ControlsSection: React.FC = () => {
         >
           <Wand2 className="w-4 h-4" />
           <span>職業別おすすめ魔術</span>
+        </button>
+        <button
+          onClick={() => setActiveSubTab('incantations')}
+          className={`px-3.5 py-2 rounded-t-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all flex items-center gap-2 border-t border-x ${
+            activeSubTab === 'incantations'
+              ? 'bg-elden-card text-elden-gold border-elden-gold/50 border-b-transparent font-bold'
+              : 'text-gray-400 hover:text-white border-transparent'
+          }`}
+        >
+          <Flame className="w-4 h-4 text-amber-400" />
+          <span>祈祷・聖印ガイド</span>
         </button>
       </div>
 
@@ -539,6 +558,150 @@ export const ControlsSection: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* --- SUBTAB 5: INCANTATIONS & SACRED SEALS --- */}
+      {activeSubTab === 'incantations' && (
+        <div className="space-y-8 animate-fadeIn">
+          {/* Header Description */}
+          <div className="p-5 rounded-2xl bg-gradient-to-r from-amber-950/30 to-elden-card border border-amber-500/40 space-y-2">
+            <h3 className="text-base sm:text-lg font-bold text-white font-serif flex items-center gap-2">
+              <Flame className="w-5 h-5 text-amber-400" />
+              <span>祈祷の装備・使用方法 ＆ 全褪せ人必携の神祈祷</span>
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
+              祈祷は信仰・神秘に振ったキャラだけでなく、
+              <strong className="text-white">【近接戦士でも信仰12〜15にするだけで、毒・朱い腐敗の即時解除や攻撃力20%アップ】</strong>
+              などの破格の恩恵が得られる人権システムです。
+            </p>
+          </div>
+
+          {/* 5-Step Equip Guide */}
+          <div className="space-y-4">
+            <h4 className="text-sm sm:text-base font-bold text-elden-gold font-serif flex items-center gap-2">
+              <Scroll className="w-4 h-4 text-elden-gold" />
+              <span>初心者向け：祈祷の装備・使用 5 つのステップ</span>
+            </h4>
+
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+              {incantationEquipSteps.map((step) => (
+                <div
+                  key={step.step}
+                  className="p-4 rounded-xl bg-elden-card border border-elden-border hover:border-amber-500/50 transition-all flex flex-col justify-between space-y-3"
+                >
+                  <div className="space-y-2">
+                    <div className="w-7 h-7 rounded-full bg-amber-500/20 text-amber-400 font-bold font-mono text-xs flex items-center justify-center border border-amber-500/40">
+                      {step.step}
+                    </div>
+                    <h5 className="text-xs sm:text-sm font-bold text-white leading-snug">
+                      {step.title}
+                    </h5>
+                    <p className="text-[11px] font-mono text-amber-400/90 bg-black/40 px-2 py-1 rounded border border-gray-800">
+                      {step.command}
+                    </p>
+                    <p className="text-xs text-gray-300 leading-relaxed">
+                      {step.detail}
+                    </p>
+                  </div>
+                  {step.caution && (
+                    <div className="text-[10px] text-amber-300/90 bg-amber-950/40 p-2 rounded border border-amber-800/40 flex items-start gap-1">
+                      <AlertTriangle className="w-3 h-3 text-amber-400 shrink-0 mt-0.5" />
+                      <span>{step.caution}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Must Have Incantations List */}
+          <div className="space-y-4">
+            <h4 className="text-sm sm:text-base font-bold text-elden-gold font-serif flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-elden-gold" />
+              <span>全褪せ人必携！低信仰でも使える人権祈祷カタログ</span>
+            </h4>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {mustHaveIncantations.map((inc) => (
+                <div
+                  key={inc.id}
+                  className="p-5 rounded-2xl bg-elden-card border border-elden-border hover:border-amber-500/50 transition-all space-y-3 flex flex-col justify-between"
+                >
+                  <div className="space-y-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <h5 className="text-base font-bold text-white font-serif flex items-center gap-2">
+                        <Flame className="w-4 h-4 text-amber-400" />
+                        <span>{inc.name}</span>
+                      </h5>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="text-xs px-2 py-0.5 rounded bg-amber-950/40 text-amber-400 border border-amber-800/50 font-mono font-bold">
+                          必要信仰 {inc.reqFaith}
+                          {inc.reqArcane ? ` / 神秘 ${inc.reqArcane}` : ''}
+                        </span>
+                        <span className="text-xs px-2 py-0.5 rounded bg-blue-950/40 text-blue-300 border border-blue-800/40 font-mono">
+                          {inc.fpCost}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="text-xs text-gray-300 bg-black/40 p-3 rounded-xl border border-gray-800 space-y-1">
+                      <p>
+                        <span className="font-bold text-gray-400">入手場所:</span>{' '}
+                        <span className="text-amber-300">{inc.location}</span>
+                      </p>
+                      <p className="text-gray-400 text-[11px] leading-relaxed">
+                        {inc.howToGet}
+                      </p>
+                    </div>
+
+                    <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
+                      {inc.feature}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-gray-800/80">
+                    <div className="p-2.5 rounded-lg bg-amber-950/30 border border-amber-800/50 text-xs text-amber-200 leading-relaxed">
+                      <span className="font-bold text-amber-400 block mb-0.5">なぜ必携なのか:</span>
+                      {inc.whyMustHave}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Sacred Seals Selection */}
+          <div className="space-y-4">
+            <h4 className="text-sm sm:text-base font-bold text-elden-gold font-serif flex items-center gap-2">
+              <Shield className="w-4 h-4 text-elden-gold" />
+              <span>触媒「聖印（せいしるし）」の入手場所 ＆ おすすめ</span>
+            </h4>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {sacredSealsList.map((seal) => (
+                <div
+                  key={seal.id}
+                  className="p-4 rounded-xl bg-elden-card border border-elden-border hover:border-amber-500/40 transition-all space-y-2 text-xs"
+                >
+                  <h5 className="font-bold text-white text-sm font-serif flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-400" />
+                    <span>{seal.name}</span>
+                  </h5>
+                  <p className="text-gray-400 font-mono">
+                    <span className="font-bold">補正:</span> {seal.scaling}
+                  </p>
+                  <p className="text-amber-300">
+                    <span className="font-bold text-gray-400">効果:</span> {seal.specialEffect}
+                  </p>
+                  <div className="bg-black/40 p-2 rounded border border-gray-800 text-[11px] text-gray-300">
+                    <span className="font-bold text-gray-400">入手:</span> {seal.location} ({seal.howToGet})
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

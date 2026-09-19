@@ -1,17 +1,19 @@
 import React from 'react';
-import { Sparkles, Shield, Compass, Coins, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Shield, Compass, Coins, CheckCircle2, Search } from 'lucide-react';
 
 interface HeaderProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   checkedCount: number;
   totalChecklistCount: number;
+  onOpenSearch: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   setActiveTab,
   checkedCount,
   totalChecklistCount,
+  onOpenSearch,
 }) => {
   const progressPercent = Math.round((checkedCount / totalChecklistCount) * 100) || 0;
 
@@ -36,32 +38,53 @@ export const Header: React.FC<HeaderProps> = ({
             </h1>
             
             <p className="mt-2 text-xs sm:text-sm text-gray-400 max-w-2xl leading-relaxed">
-              詰まりやすいボス攻略やストーリー進行ではなく、<strong className="text-elden-gold-light">「キャラを最速で強化し、死ににくく快適に探索を進めるための知識」</strong>（ステ振り、操作極意、聖杯瓶強化、地図、ルーン稼ぎ）を厳選収録。
+              詰まりやすいボス攻略やストーリー進行ではなく、<strong className="text-elden-gold-light">「キャラを最速で強化し、死ににくく快適に探索を進めるための知識」</strong>（ステ振り、操作極意、聖杯瓶強化、地図、ルーン稼ぎ、戦技・祈祷、迷った時の打開策）を厳選収録。
             </p>
           </div>
 
-          {/* Quick Progress Widget */}
-          <div 
-            onClick={() => setActiveTab('checklist')}
-            className="cursor-pointer bg-elden-panel/80 hover:bg-elden-panel border border-elden-gold/30 hover:border-elden-gold/60 p-3 sm:p-4 rounded-xl shadow-lg transition-all flex items-center justify-between sm:justify-start gap-4 self-start md:self-auto w-full md:w-auto"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2 sm:p-2.5 rounded-lg bg-elden-gold/15 border border-elden-gold/30 text-elden-gold">
-                <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
-              </div>
-              <div>
-                <div className="text-[11px] font-medium text-gray-400">強化アイテム回収進捗</div>
-                <div className="text-sm sm:text-base font-bold text-white font-serif flex items-center gap-1.5">
-                  <span className="text-elden-gold-light">{checkedCount}</span>
-                  <span className="text-gray-500">/</span>
-                  <span>{totalChecklistCount} 個</span>
-                  <span className="text-xs text-elden-gold ml-1 font-mono">({progressPercent}%)</span>
+          {/* Right Action Area (Search Button + Progress Widget) */}
+          <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row items-stretch sm:items-center gap-3">
+            {/* Global Search Button */}
+            <button
+              onClick={onOpenSearch}
+              className="flex items-center justify-between sm:justify-start gap-3 px-4 py-3 rounded-xl bg-elden-panel/90 hover:bg-elden-panel border border-elden-gold/40 hover:border-elden-gold text-white text-xs sm:text-sm font-medium transition-all shadow-lg group cursor-pointer"
+              title="サイト全体を検索 (Ctrl+K / /)"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-lg bg-elden-gold/15 text-elden-gold group-hover:scale-110 transition-transform">
+                  <Search className="w-4 h-4" />
+                </div>
+                <div className="text-left">
+                  <div className="font-serif text-xs text-elden-gold-light font-bold">全体横断検索</div>
+                  <div className="text-[10px] text-gray-400">アイテム・戦技・祈祷・Tips</div>
                 </div>
               </div>
-            </div>
-            <div className="text-right sm:text-left">
-              <span className="text-xs bg-elden-gold/20 text-elden-gold-light px-2.5 py-1 rounded border border-elden-gold/40 hover:bg-elden-gold/30 transition-colors">
-                確認する →
+              <kbd className="hidden sm:inline-block px-2 py-0.5 text-[10px] font-mono text-gray-400 bg-black/60 border border-white/10 rounded ml-2">
+                / or Ctrl+K
+              </kbd>
+            </button>
+
+            {/* Quick Progress Widget */}
+            <div 
+              onClick={() => setActiveTab('checklist')}
+              className="cursor-pointer bg-elden-panel/80 hover:bg-elden-panel border border-elden-gold/30 hover:border-elden-gold/60 p-3 sm:p-3.5 rounded-xl shadow-lg transition-all flex items-center justify-between gap-3"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-lg bg-elden-gold/15 border border-elden-gold/30 text-elden-gold">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-[10px] font-medium text-gray-400">強化アイテム回収</div>
+                  <div className="text-xs sm:text-sm font-bold text-white font-serif flex items-center gap-1">
+                    <span className="text-elden-gold-light">{checkedCount}</span>
+                    <span className="text-gray-500">/</span>
+                    <span>{totalChecklistCount}</span>
+                    <span className="text-[11px] text-elden-gold ml-1 font-mono">({progressPercent}%)</span>
+                  </div>
+                </div>
+              </div>
+              <span className="text-[11px] bg-elden-gold/20 text-elden-gold-light px-2 py-1 rounded border border-elden-gold/40 hover:bg-elden-gold/30 transition-colors">
+                確認 →
               </span>
             </div>
           </div>
