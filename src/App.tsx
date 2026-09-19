@@ -1,27 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Navbar } from './components/Navbar';
-import { LostGuideSection } from './components/LostGuideSection';
-import { ProgressionSection } from './components/ProgressionSection';
+import { ProgressionHub } from './components/ProgressionHub';
 import { RegionMapSection } from './components/RegionMapSection';
-import { AshesOfWarSection } from './components/AshesOfWarSection';
-import { UsefulTipsSection } from './components/UsefulTipsSection';
-import { NpcSafetySection } from './components/NpcSafetySection';
-import { SmithingSection } from './components/SmithingSection';
+import { CharacterHub } from './components/CharacterHub';
+import { EquipmentHub } from './components/EquipmentHub';
 import { PhysickSection } from './components/PhysickSection';
-import { ControlsSection } from './components/ControlsSection';
-import { ClassesWeaponsSection } from './components/ClassesWeaponsSection';
-import { BuildsSection } from './components/BuildsSection';
 import { UpgradesSection } from './components/UpgradesSection';
-import { RuneFarmingSection } from './components/RuneFarmingSection';
 import { ChecklistSection } from './components/ChecklistSection';
 import { SearchModal } from './components/SearchModal';
 import { upgradesList } from './data/upgradesData';
 import { Github, Heart, Sparkles } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('lost-guide');
+  const [activeTab, setActiveTab] = useState<string>('progression-hub');
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [hubSubTabs, setHubSubTabs] = useState<{
+    progression: string;
+    character: string;
+    equipment: string;
+  }>({
+    progression: 'lost-guide',
+    character: 'controls',
+    equipment: 'ashes',
+  });
+
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>(() => {
     try {
       const saved = localStorage.getItem('elden_ring_guide_checklist');
@@ -69,8 +72,20 @@ export const App: React.FC = () => {
     setCheckedItems({});
   };
 
+  // Smart navigation supporting both consolidated Hubs and individual legacy subtab IDs
   const navigateTab = (tabId: string) => {
-    setActiveTab(tabId);
+    if (['lost-guide', 'progression', 'npc-safety', 'runes'].includes(tabId)) {
+      setActiveTab('progression-hub');
+      setHubSubTabs((prev) => ({ ...prev, progression: tabId }));
+    } else if (['controls', 'classes', 'builds'].includes(tabId)) {
+      setActiveTab('character-hub');
+      setHubSubTabs((prev) => ({ ...prev, character: tabId }));
+    } else if (['ashes', 'smithing', 'useful'].includes(tabId)) {
+      setActiveTab('equipment-hub');
+      setHubSubTabs((prev) => ({ ...prev, equipment: tabId }));
+    } else {
+      setActiveTab(tabId);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -88,7 +103,7 @@ export const App: React.FC = () => {
         onOpenSearch={() => setIsSearchOpen(true)}
       />
 
-      {/* Navigation (Desktop Top Sticky / Mobile Bottom Stick) */}
+      {/* Navigation (Desktop Top Sticky / Mobile Bottom Bar) */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={navigateTab}
@@ -97,21 +112,25 @@ export const App: React.FC = () => {
 
       {/* Main Content Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 md:pb-12">
-        {activeTab === 'lost-guide' && <LostGuideSection onNavigateTab={navigateTab} />}
-        {activeTab === 'progression' && <ProgressionSection />}
+        {activeTab === 'progression-hub' && (
+          <ProgressionHub
+            initialSubTab={hubSubTabs.progression}
+            onNavigateTab={navigateTab}
+          />
+        )}
         {activeTab === 'regions' && <RegionMapSection />}
-        {activeTab === 'ashes' && <AshesOfWarSection />}
-        {activeTab === 'useful' && <UsefulTipsSection />}
-        {activeTab === 'npc-safety' && <NpcSafetySection />}
-        {activeTab === 'smithing' && <SmithingSection />}
+        {activeTab === 'character-hub' && (
+          <CharacterHub initialSubTab={hubSubTabs.character} />
+        )}
+        {activeTab === 'equipment-hub' && (
+          <EquipmentHub initialSubTab={hubSubTabs.equipment} />
+        )}
+
+        {/* --- 状態保持が必要なツール（統合の対象から完全に除外・独立維持） --- */}
         {activeTab === 'physick' && <PhysickSection />}
-        {activeTab === 'controls' && <ControlsSection />}
-        {activeTab === 'classes' && <ClassesWeaponsSection />}
-        {activeTab === 'builds' && <BuildsSection />}
         {activeTab === 'upgrades' && (
           <UpgradesSection checkedItems={checkedItems} toggleItem={toggleItem} />
         )}
-        {activeTab === 'runes' && <RuneFarmingSection />}
         {activeTab === 'checklist' && (
           <ChecklistSection
             checkedItems={checkedItems}

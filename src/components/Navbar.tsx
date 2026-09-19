@@ -2,18 +2,11 @@ import React from 'react';
 import {
   Compass,
   Map,
-  Sparkles,
-  Gamepad2,
-  Sword,
-  Swords,
   Target,
-  MapPin,
-  Coins,
-  CheckSquare,
-  ShieldAlert,
-  Hammer,
+  Swords,
   FlaskConical,
-  HelpCircle,
+  MapPin,
+  CheckSquare,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -24,25 +17,59 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, checkedCount }) => {
   const navItems = [
-    { id: 'lost-guide', label: '迷った時の道標 (大ピンチ解決)', shortLabel: '迷った時', icon: HelpCircle, highlight: true },
-    { id: 'progression', label: '進行ガイド (序・中・終盤)', shortLabel: '進行ガイド', icon: Compass },
-    { id: 'regions', label: '地域別マップ ＆ スポット', shortLabel: '地域マップ', icon: Map },
-    { id: 'ashes', label: '戦技・戦灰 ＆ 砥石刃', shortLabel: '戦技・戦灰', icon: Swords },
-    { id: 'useful', label: '神遺灰・タリスマン・大ルーン', shortLabel: '神遺灰・知識', icon: Sparkles },
-    { id: 'npc-safety', label: '取返不能 ＆ 重要NPC', shortLabel: 'NPC・取返不能', icon: ShieldAlert },
-    { id: 'smithing', label: '鍛石・喪色ルート (最速+9)', shortLabel: '鍛石ルート', icon: Hammer },
-    { id: 'physick', label: '霊薬配合シミュレーター', shortLabel: '霊薬配合', icon: FlaskConical },
-    { id: 'controls', label: '基本操作・心得・祈祷', shortLabel: '操作・祈祷', icon: Gamepad2 },
-    { id: 'classes', label: '素性・おすすめ装備', shortLabel: '素性・装備', icon: Sword },
-    { id: 'builds', label: 'おすすめビルド・ステ振り', shortLabel: 'ビルド', icon: Target },
-    { id: 'upgrades', label: '強化アイテム・地図', shortLabel: '強化・地図', icon: MapPin },
-    { id: 'runes', label: 'ルーン稼ぎ完全ガイド', shortLabel: 'ルーン稼ぎ', icon: Coins },
+    {
+      id: 'progression-hub',
+      label: '進行・道標 (迷子・NPC・稼ぎ)',
+      shortLabel: '進行・道標',
+      icon: Compass,
+      matchTabs: ['progression-hub', 'lost-guide', 'progression', 'npc-safety', 'runes'],
+    },
+    {
+      id: 'regions',
+      label: '地域別マップ (全5地方)',
+      shortLabel: '地域マップ',
+      icon: Map,
+      matchTabs: ['regions'],
+    },
+    {
+      id: 'character-hub',
+      label: 'キャラ・育成 (操作・装備・ビルド)',
+      shortLabel: 'キャラ育成',
+      icon: Target,
+      matchTabs: ['character-hub', 'controls', 'classes', 'builds'],
+    },
+    {
+      id: 'equipment-hub',
+      label: '戦技・強化 (戦灰・鍛石・遺灰)',
+      shortLabel: '戦技・強化',
+      icon: Swords,
+      matchTabs: ['equipment-hub', 'ashes', 'smithing', 'useful'],
+    },
+    // --- 状態保持が必要なツール（統合除外・独立維持） ---
+    {
+      id: 'physick',
+      label: '霊薬配合シミュレーター',
+      shortLabel: '霊薬配合',
+      icon: FlaskConical,
+      isStateful: true,
+      matchTabs: ['physick'],
+    },
+    {
+      id: 'upgrades',
+      label: '強化アイテム・地図',
+      shortLabel: '強化・地図',
+      icon: MapPin,
+      isStateful: true,
+      matchTabs: ['upgrades'],
+    },
     {
       id: 'checklist',
       label: `回収チェック (${checkedCount})`,
       shortLabel: 'チェック',
       icon: CheckSquare,
       badge: checkedCount > 0 ? checkedCount : undefined,
+      isStateful: true,
+      matchTabs: ['checklist'],
     },
   ];
 
@@ -56,28 +83,28 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, checked
       {/* Desktop Navigation (Top Sticky) */}
       <nav className="hidden md:block sticky top-0 z-40 bg-[#0e1014]/95 backdrop-blur-md border-b border-elden-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-1 lg:space-x-1.5 py-2.5 overflow-x-auto no-scrollbar">
+          <div className="flex items-center justify-between py-2.5 space-x-1 lg:space-x-1.5 overflow-x-auto no-scrollbar">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = activeTab === item.id;
+              const isActive = item.matchTabs.includes(activeTab);
               return (
                 <button
                   key={item.id}
                   onClick={() => handleTabClick(item.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs lg:text-sm font-medium transition-all whitespace-nowrap ${
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs lg:text-sm font-medium transition-all whitespace-nowrap ${
                     isActive
-                      ? 'bg-elden-gold/20 text-elden-gold-light border border-elden-gold/50 shadow-sm'
-                      : item.highlight
-                      ? 'text-yellow-300 bg-yellow-950/20 hover:bg-yellow-950/40 border border-yellow-800/40'
-                      : 'text-gray-400 hover:text-gray-200 hover:bg-elden-panel border border-transparent'
+                      ? 'bg-elden-gold text-black font-bold font-serif shadow-md'
+                      : item.isStateful
+                      ? 'text-yellow-300/90 hover:text-white bg-yellow-950/20 hover:bg-yellow-950/40 border border-yellow-800/30'
+                      : 'text-gray-300 hover:text-white hover:bg-elden-panel border border-transparent'
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 lg:w-4 lg:h-4 ${
-                    isActive ? 'text-elden-gold' : item.highlight ? 'text-yellow-400' : 'text-gray-400'
-                  }`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-black' : item.isStateful ? 'text-yellow-400' : 'text-elden-gold'}`} />
                   <span>{item.label}</span>
                   {item.badge !== undefined && (
-                    <span className="ml-1 px-1.5 py-0.2 text-[10px] rounded-full bg-elden-gold/30 text-elden-gold font-mono">
+                    <span className={`ml-1 px-1.5 py-0.2 text-[10px] rounded-full font-mono font-bold ${
+                      isActive ? 'bg-black text-elden-gold' : 'bg-elden-gold/30 text-elden-gold-light'
+                    }`}>
                       {item.badge}
                     </span>
                   )}
@@ -88,38 +115,38 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, checked
         </div>
       </nav>
 
-      {/* Mobile Bottom Navigation (Scrollable bottom bar with clean snap) */}
+      {/* Mobile Bottom Navigation (Streamlined 7 items bar with clear touch targets) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0d0f12]/95 backdrop-blur-lg border-t border-elden-gold/30 pb-safe">
-        <div className="flex items-center overflow-x-auto no-scrollbar px-2 py-1 h-14 space-x-1">
+        <div className="flex items-center justify-between overflow-x-auto no-scrollbar px-1 py-1 h-14">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeTab === item.id;
+            const isActive = item.matchTabs.includes(activeTab);
             return (
               <button
                 key={item.id}
                 onClick={() => handleTabClick(item.id)}
-                className={`flex flex-col items-center justify-center min-w-[68px] px-1 py-1 rounded-lg relative transition-all shrink-0 ${
+                className={`flex flex-col items-center justify-center min-w-[52px] flex-1 px-0.5 py-1 rounded-lg relative transition-all shrink-0 ${
                   isActive
                     ? 'bg-elden-gold/15 text-elden-gold-light'
-                    : item.highlight
-                    ? 'text-yellow-300'
+                    : item.isStateful
+                    ? 'text-yellow-300/80 active:text-yellow-200'
                     : 'text-gray-400 active:text-gray-200'
                 }`}
               >
                 {isActive && (
-                  <div className="absolute top-0 left-3 right-3 h-0.5 bg-elden-gold shadow-[0_0_8px_#c8aa6e]" />
+                  <div className="absolute top-0 left-2 right-2 h-0.5 bg-elden-gold shadow-[0_0_8px_#c8aa6e]" />
                 )}
                 <div className="relative">
-                  <Icon className={`w-5 h-5 mb-0.5 ${
-                    isActive ? 'text-elden-gold' : item.highlight ? 'text-yellow-400' : 'text-gray-400'
+                  <Icon className={`w-4 h-4 mb-0.5 ${
+                    isActive ? 'text-elden-gold' : item.isStateful ? 'text-yellow-400' : 'text-gray-400'
                   }`} />
                   {item.badge !== undefined && (
-                    <span className="absolute -top-1 -right-2 w-4 h-4 bg-elden-gold text-black rounded-full text-[9px] font-bold flex items-center justify-center">
+                    <span className="absolute -top-1 -right-2 w-3.5 h-3.5 bg-elden-gold text-black rounded-full text-[8px] font-bold flex items-center justify-center">
                       {item.badge}
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] leading-tight font-serif whitespace-nowrap">
+                <span className="text-[9px] leading-tight font-serif whitespace-nowrap">
                   {item.shortLabel}
                 </span>
               </button>
