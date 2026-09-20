@@ -288,5 +288,45 @@ export interface SearchItem {
   keywords: string[];
 }
 
+// --- NPC Quest Flow (サブNPC完全攻略フロー) ---
+export interface NpcQuestStep {
+  step: number;
+  location: string;
+  action: string;
+  dialogOrChoice?: string;
+  caution?: string;
+  bossRequired?: string;
+  note?: string;
+}
 
+export interface NpcBranchChoice {
+  title: string;
+  choiceA: {
+    label: string;
+    action: string;
+    outcome: string;
+    reward: string;
+  };
+  choiceB: {
+    label: string;
+    action: string;
+    outcome: string;
+    reward: string;
+  };
+  recommendation: string;
+}
 
+export interface NpcQuestFlowItem {
+  id: string;
+  name: string;
+  title: string;
+  category: 'ending' | 'equipment' | 'function';
+  categoryLabel: string;
+  firstLocation: string;
+  mainRewards: string[];
+  endingImpact?: string;
+  summary: string;
+  spoilerEnding: string;
+  branchChoice?: NpcBranchChoice;
+  steps: NpcQuestStep[];
+}
