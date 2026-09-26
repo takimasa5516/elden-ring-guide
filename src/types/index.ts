@@ -291,12 +291,16 @@ export interface SearchItem {
 // --- NPC Quest Flow (サブNPC完全攻略フロー) ---
 export interface NpcQuestStep {
   step: number;
-  location: string;
-  action: string;
-  dialogOrChoice?: string;
-  caution?: string;
-  bossRequired?: string;
-  note?: string;
+  summary: string; // フローチャート用の簡潔なステップ要約
+  destination: string; // 行先（エリア・最寄りの祝福・具体的な位置）
+  action: string; // 対応内容（具体的な行動・手順・会話）
+  location?: string; // 後方互換用
+  acquiredItems?: string[]; // 入手アイテム・報酬
+  dialogOrChoice?: string; // 会話・選択肢
+  caution?: string; // 注意点・時限・フラグ折れ
+  bossRequired?: string; // 討伐対象ボス
+  timeCondition?: string; // 時間帯などの条件
+  note?: string; // 補足メモ
 }
 
 export interface NpcBranchChoice {
@@ -323,6 +327,7 @@ export interface NpcQuestFlowItem {
   category: 'ending' | 'equipment' | 'function';
   categoryLabel: string;
   firstLocation: string;
+  timeLimit?: string; // 時限の有無（Kamigame準拠）
   mainRewards: string[];
   endingImpact?: string;
   summary: string;
@@ -330,3 +335,4 @@ export interface NpcQuestFlowItem {
   branchChoice?: NpcBranchChoice;
   steps: NpcQuestStep[];
 }
+

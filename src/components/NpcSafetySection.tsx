@@ -12,6 +12,13 @@ import {
   Search,
   Check,
   Compass,
+  ArrowRight,
+  Clock,
+  Gift,
+  ShieldAlert,
+  MessageSquareQuote,
+  Swords,
+  Sparkles,
 } from 'lucide-react';
 
 export const NpcSafetySection: React.FC = () => {
@@ -34,7 +41,15 @@ export const NpcSafetySection: React.FC = () => {
       npc.name.toLowerCase().includes(query) ||
       npc.title.toLowerCase().includes(query) ||
       npc.firstLocation.toLowerCase().includes(query) ||
-      npc.mainRewards.some((r) => r.toLowerCase().includes(query));
+      npc.mainRewards.some((r) => r.toLowerCase().includes(query)) ||
+      npc.steps.some(
+        (s) =>
+          (s.summary && s.summary.toLowerCase().includes(query)) ||
+          (s.destination && s.destination.toLowerCase().includes(query)) ||
+          (s.location && s.location.toLowerCase().includes(query)) ||
+          (s.action && s.action.toLowerCase().includes(query)) ||
+          (s.acquiredItems && s.acquiredItems.some((item) => item.toLowerCase().includes(query)))
+      );
     return matchesCategory && matchesSearch;
   });
 
@@ -45,18 +60,18 @@ export const NpcSafetySection: React.FC = () => {
   return (
     <div className="space-y-6 pb-12">
       {/* Banner */}
-      <div className="bg-elden-panel p-4 sm:p-6 rounded-2xl border border-elden-border relative overflow-hidden space-y-3">
-        <div className="absolute -right-6 -bottom-6 w-36 h-36 bg-red-950/20 rounded-full blur-2xl pointer-events-none" />
+      <div className="bg-elden-panel p-4 sm:p-6 rounded-2xl border border-elden-border relative overflow-hidden space-y-3 shadow-lg">
+        <div className="absolute -right-6 -bottom-6 w-44 h-44 bg-red-950/20 rounded-full blur-2xl pointer-events-none" />
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-950/60 border border-red-800/60 text-red-300 text-xs font-serif font-bold">
           <Flame className="w-3.5 h-3.5 text-red-400" />
-          <span>SPOILER UNLOCKED • サブNPCイベント完全攻略 ＆ 取返不能防止</span>
+          <span>SPOILER UNLOCKED • 神ゲー攻略準拠 主要サブNPC完全攻略フローチャート</span>
         </div>
         <h2 className="text-xl sm:text-2xl font-bold text-white font-serif flex items-center gap-2">
           <Users className="w-6 h-6 text-elden-gold" />
-          <span>サブNPCイベント完全攻略フロー ＆ 取り返しのつかない要素</span>
+          <span>サブNPCイベント完全攻略フロー ＆ 行先・対応内容</span>
         </h2>
         <p className="text-xs sm:text-sm text-gray-300 leading-relaxed max-w-3xl">
-          【一部ネタバレ解禁】ラニやミリセントをはじめとする全13大サブNPCの<strong>出会いから最終結末、ボス共闘、運命の分岐選択、最強装備・エンディング修復ルーン入手までの完全チャート</strong>を網羅。取り返しのつかない重大アラートも併載しています。
+          【全13名収録】神ゲー攻略チャートの構成に準拠し、各NPCイベントの<strong>進行フローチャート（一覧図解）</strong>および各ステップの<strong>【行先（最寄り祝福・エリア）】【対応内容（手順・会話・ボス討伐）】【入手アイテム】【時限・注意点】</strong>を完全網羅しました。取り返しのつかない重大アラートも併載しています。
         </p>
       </div>
 
@@ -112,11 +127,11 @@ export const NpcSafetySection: React.FC = () => {
             </div>
 
             {/* Search Input */}
-            <div className="relative min-w-[200px] sm:min-w-[240px]">
+            <div className="relative min-w-[200px] sm:min-w-[260px]">
               <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="NPC名・報酬・地名で検索..."
+                placeholder="NPC名・報酬・行先・アイテムで検索..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-black/50 border border-elden-border text-xs text-white placeholder-gray-500 focus:outline-none focus:border-elden-gold"
@@ -125,55 +140,81 @@ export const NpcSafetySection: React.FC = () => {
           </div>
 
           {/* NPC Flow Cards List */}
-          <div className="space-y-4">
+          <div className="space-y-5">
             {filteredNpcs.map((npc) => {
               const isExpanded = expandedNpc === npc.id;
+              const hasTimeLimit = npc.timeLimit && npc.timeLimit !== 'なし';
+
               return (
                 <div
                   key={npc.id}
-                  className={`rounded-2xl border transition-all overflow-hidden ${
+                  id={`npc-${npc.id}`}
+                  className={`rounded-2xl border transition-all overflow-hidden shadow-md ${
                     isExpanded
-                      ? 'bg-elden-panel border-elden-gold/50 shadow-xl'
+                      ? 'bg-elden-panel border-elden-gold/60 shadow-xl'
                       : 'bg-elden-panel/80 hover:bg-elden-panel border-elden-border'
                   }`}
                 >
                   {/* Card Header (Always Visible, Click to Toggle) */}
                   <div
                     onClick={() => toggleExpand(npc.id)}
-                    className="p-4 sm:p-5 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 select-none"
+                    className="p-4 sm:p-5 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 select-none hover:bg-white/[0.02]"
                   >
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5 flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-xs px-2.5 py-0.5 rounded-full font-serif font-bold bg-elden-gold/15 text-elden-gold-light border border-elden-gold/30">
                           {npc.categoryLabel}
                         </span>
+
+                        {hasTimeLimit ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full font-serif font-bold bg-red-950/70 text-red-300 border border-red-800/60">
+                            <Clock className="w-3 h-3 text-red-400" />
+                            <span>時限: {npc.timeLimit}</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full font-serif font-bold bg-emerald-950/60 text-emerald-300 border border-emerald-800/50">
+                            <Check className="w-3 h-3 text-emerald-400" />
+                            <span>時限なし（後から回収可）</span>
+                          </span>
+                        )}
+
                         <h3 className="text-base sm:text-lg font-bold text-white font-serif flex items-center gap-2">
                           <span>{npc.name}</span>
                         </h3>
-                        <span className="text-xs text-gray-400 font-serif hidden sm:inline">— {npc.title}</span>
+                        <span className="text-xs text-gray-400 font-serif hidden md:inline">— {npc.title}</span>
                       </div>
+
                       <p className="text-xs text-gray-300 leading-relaxed line-clamp-1 sm:line-clamp-none">
                         {npc.summary}
                       </p>
-                      <div className="flex items-center gap-1.5 text-[11px] text-elden-gold-light/90">
-                        <MapPin className="w-3.5 h-3.5 text-elden-gold shrink-0" />
-                        <span>初遭遇: {npc.firstLocation}</span>
+
+                      <div className="flex flex-wrap items-center gap-y-1 gap-x-3 text-[11px] text-elden-gold-light/90 pt-0.5">
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5 text-elden-gold shrink-0" />
+                          <span>初遭遇: {npc.firstLocation}</span>
+                        </span>
+                        <span className="text-gray-500">•</span>
+                        <span className="flex items-center gap-1 text-gray-300">
+                          <Compass className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                          <span>全 {npc.steps.length} ステップ</span>
+                        </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
+                    {/* Reward preview & expand icon */}
+                    <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5 shrink-0">
                       <div className="flex flex-wrap gap-1 sm:justify-end max-w-xs">
                         {npc.mainRewards.slice(0, 2).map((r, idx) => (
                           <span
                             key={idx}
-                            className="text-[10px] px-2 py-0.5 rounded bg-black/60 border border-elden-border text-yellow-300 truncate max-w-[150px]"
+                            className="text-[10px] px-2 py-0.5 rounded bg-black/60 border border-elden-border text-yellow-300 truncate max-w-[140px]"
                           >
                             {r.split('（')[0]}
                           </span>
                         ))}
                       </div>
                       <button
-                        className={`p-1.5 rounded-lg border transition-transform ${
+                        className={`p-1.5 rounded-lg border transition-transform shrink-0 ${
                           isExpanded ? 'bg-elden-gold text-black border-elden-gold rotate-180' : 'bg-black/40 text-gray-400 border-white/10'
                         }`}
                         aria-label="開閉"
@@ -185,9 +226,41 @@ export const NpcSafetySection: React.FC = () => {
 
                   {/* Card Content (Expandable) */}
                   {isExpanded && (
-                    <div className="border-t border-elden-border/60 p-4 sm:p-6 space-y-6 bg-black/30">
-                      {/* Rewards Overview */}
-                      <div className="p-3.5 rounded-xl bg-black/50 border border-elden-border space-y-2">
+                    <div className="border-t border-elden-border/60 p-4 sm:p-6 space-y-6 bg-black/40">
+                      {/* 1. Quick Flowchart Chain (視覚的イベントフローチャート) */}
+                      <div className="p-3.5 sm:p-4 rounded-xl bg-gradient-to-r from-amber-950/20 via-black/50 to-amber-950/20 border border-elden-gold/30 space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <strong className="text-xs sm:text-sm text-elden-gold font-serif flex items-center gap-1.5">
+                            <Sparkles className="w-4 h-4 text-elden-gold" />
+                            <span>イベント攻略フローチャート（全体の流れ）</span>
+                          </strong>
+                          <span className="text-[10px] text-gray-400 hidden sm:inline">横スクロールで全体を確認可能</span>
+                        </div>
+
+                        {/* Pipeline / Flow Pills */}
+                        <div className="overflow-x-auto no-scrollbar py-1">
+                          <div className="flex items-center gap-1.5 min-w-max">
+                            {npc.steps.map((step, idx) => (
+                              <React.Fragment key={step.step}>
+                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/70 border border-elden-gold/40 text-[11px] text-gray-200 shadow-sm">
+                                  <span className="w-4 h-4 rounded-full bg-elden-gold text-black font-mono font-bold flex items-center justify-center text-[10px] shrink-0">
+                                    {step.step}
+                                  </span>
+                                  <span className="font-medium text-white max-w-[160px] truncate">
+                                    {step.summary || step.destination || step.location || ''}
+                                  </span>
+                                </div>
+                                {idx < npc.steps.length - 1 && (
+                                  <ArrowRight className="w-3.5 h-3.5 text-elden-gold/60 shrink-0" />
+                                )}
+                              </React.Fragment>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 2. Rewards Overview */}
+                      <div className="p-3.5 sm:p-4 rounded-xl bg-black/50 border border-elden-border space-y-2">
                         <strong className="text-xs text-elden-gold font-serif flex items-center gap-1.5">
                           <Award className="w-4 h-4" />
                           <span>獲得できる主要報酬・遺品</span>
@@ -208,7 +281,7 @@ export const NpcSafetySection: React.FC = () => {
                         )}
                       </div>
 
-                      {/* Branch Choice Box (if applicable) */}
+                      {/* 3. Branch Choice Box (if applicable) */}
                       {npc.branchChoice && (
                         <div className="p-4 rounded-xl bg-yellow-950/20 border border-yellow-800/40 space-y-3">
                           <div className="flex items-center gap-2 text-yellow-300 font-serif font-bold text-sm">
@@ -241,64 +314,132 @@ export const NpcSafetySection: React.FC = () => {
                         </div>
                       )}
 
-                      {/* Step-by-Step Flow Timeline */}
+                      {/* 4. Detailed Step-by-Step Flow List (行先/対応内容/入手アイテム/注意点) */}
                       <div className="space-y-3">
-                        <h4 className="text-sm font-bold text-white font-serif flex items-center gap-2">
-                          <Compass className="w-4 h-4 text-elden-gold" />
-                          <span>攻略手順フロー（最初から結末まで）</span>
-                        </h4>
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-bold text-white font-serif flex items-center gap-2">
+                            <Compass className="w-4 h-4 text-elden-gold" />
+                            <span>各ステップの行先 ＆ 対応内容詳細</span>
+                          </h4>
+                          <span className="text-[11px] text-gray-400">全 {npc.steps.length} 段階</span>
+                        </div>
 
-                        <div className="space-y-2.5">
-                          {npc.steps.map((step) => (
-                            <div
-                              key={step.step}
-                              className="p-3 sm:p-3.5 rounded-xl bg-black/40 border border-white/5 space-y-1.5 text-xs relative pl-9 sm:pl-10"
-                            >
-                              <span className="absolute left-2.5 top-3.5 w-5 h-5 rounded-full bg-elden-gold/20 text-elden-gold-light font-mono font-bold flex items-center justify-center text-[10px] border border-elden-gold/30">
-                                {step.step}
-                              </span>
+                        <div className="space-y-3">
+                          {npc.steps.map((step) => {
+                            const stepDestination = step.destination || step.location || '';
+                            const stepSummary = step.summary || step.destination || step.location || '';
 
-                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                                <strong className="text-white font-serif text-sm">
-                                  {step.location}
-                                </strong>
-                                {step.bossRequired && (
-                                  <span className="text-[10px] px-2 py-0.5 rounded bg-red-950/60 border border-red-800/40 text-red-300 shrink-0 self-start sm:self-auto">
-                                    討伐: {step.bossRequired}
+                            return (
+                              <div
+                                key={step.step}
+                                className="p-3.5 sm:p-4 rounded-xl bg-black/50 border border-elden-border/80 space-y-2.5 text-xs relative pl-10 sm:pl-12 hover:border-elden-gold/40 transition-colors"
+                              >
+                                {/* Step Number Badge */}
+                                <span className="absolute left-2.5 sm:left-3 top-3.5 sm:top-4 w-6 h-6 rounded-full bg-elden-gold text-black font-mono font-bold flex items-center justify-center text-xs shadow-md">
+                                  {step.step}
+                                </span>
+
+                                {/* Step Title / Summary */}
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-1 border-b border-white/5">
+                                  <strong className="text-white font-serif text-sm">
+                                    {stepSummary}
+                                  </strong>
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    {step.timeCondition && (
+                                      <span className="text-[10px] px-2 py-0.5 rounded bg-blue-950/60 border border-blue-800/40 text-blue-300">
+                                        時間: {step.timeCondition}
+                                      </span>
+                                    )}
+                                    {step.bossRequired && (
+                                      <span className="text-[10px] px-2 py-0.5 rounded bg-red-950/60 border border-red-800/40 text-red-300 font-medium">
+                                        撃破必須: {step.bossRequired}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Destination (行先・最寄り祝福) */}
+                                <div className="p-2 sm:p-2.5 rounded-lg bg-elden-panel/80 border border-white/5 flex items-start gap-2">
+                                  <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                                  <div className="space-y-0.5">
+                                    <span className="text-[10px] font-bold text-amber-300 tracking-wider block uppercase">
+                                      【行先・最寄り祝福】
+                                    </span>
+                                    <span className="text-xs text-white font-medium">
+                                      {stepDestination}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Action (対応内容・攻略手順) */}
+                                <div className="p-2 sm:p-2.5 rounded-lg bg-black/60 border border-white/5 space-y-1">
+                                  <span className="text-[10px] font-bold text-elden-gold-light tracking-wider flex items-center gap-1">
+                                    <Swords className="w-3.5 h-3.5 text-elden-gold" />
+                                    <span>【対応内容・手順】</span>
                                   </span>
+                                  <p className="text-xs text-gray-200 leading-relaxed pl-0.5">
+                                    {step.action}
+                                  </p>
+                                </div>
+
+                                {/* Acquired Items (入手アイテム) */}
+                                {step.acquiredItems && step.acquiredItems.length > 0 && (
+                                  <div className="p-2 rounded-lg bg-amber-950/20 border border-amber-800/30 flex items-start gap-2">
+                                    <Gift className="w-4 h-4 text-yellow-400 shrink-0 mt-0.5" />
+                                    <div className="space-y-0.5">
+                                      <span className="text-[10px] font-bold text-yellow-300 tracking-wider block">
+                                        【入手アイテム】
+                                      </span>
+                                      <div className="flex flex-wrap gap-1.5">
+                                        {step.acquiredItems.map((item, i) => (
+                                          <span
+                                            key={i}
+                                            className="text-[11px] px-2 py-0.5 rounded bg-black/60 border border-yellow-700/40 text-yellow-200 font-medium"
+                                          >
+                                            {item}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Dialog / Choices */}
+                                {step.dialogOrChoice && (
+                                  <div className="text-[11px] text-amber-300 bg-amber-950/20 p-2 rounded-lg border border-amber-800/30 flex items-start gap-1.5">
+                                    <MessageSquareQuote className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                                    <div>
+                                      <strong className="text-amber-200">セリフ・選択肢: </strong>
+                                      <span>{step.dialogOrChoice}</span>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Caution / Alert */}
+                                {step.caution && (
+                                  <div className="text-[11px] text-red-300 bg-red-950/25 p-2 rounded-lg border border-red-800/40 flex items-start gap-1.5">
+                                    <ShieldAlert className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
+                                    <div>
+                                      <strong className="text-red-200">⚠️ 注意・取返不能ポイント: </strong>
+                                      <span>{step.caution}</span>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Note */}
+                                {step.note && (
+                                  <div className="text-[11px] text-gray-400 bg-black/30 p-2 rounded border border-white/5">
+                                    <strong className="text-elden-gold-light">Memo: </strong>
+                                    <span>{step.note}</span>
+                                  </div>
                                 )}
                               </div>
-
-                              <p className="text-gray-300 leading-relaxed">
-                                {step.action}
-                              </p>
-
-                              {step.dialogOrChoice && (
-                                <div className="text-[11px] text-amber-300 bg-amber-950/20 p-2 rounded border border-amber-800/30">
-                                  <strong className="text-amber-200">セリフ・選択肢: </strong>
-                                  {step.dialogOrChoice}
-                                </div>
-                              )}
-
-                              {step.caution && (
-                                <div className="text-[11px] text-red-300 bg-red-950/20 p-2 rounded border border-red-800/30">
-                                  <strong className="text-red-200">⚠️ 注意: </strong>
-                                  {step.caution}
-                                </div>
-                              )}
-
-                              {step.note && (
-                                <div className="text-[11px] text-gray-400 bg-black/30 p-2 rounded">
-                                  <strong className="text-elden-gold-light">Memo: </strong>
-                                  {step.note}
-                                </div>
-                              )}
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
 
-                      {/* Spoiler Ending & Outcome */}
+                      {/* 5. Spoiler Ending & Outcome */}
                       <div className="p-4 rounded-xl bg-red-950/15 border border-red-900/40 space-y-1.5 text-xs">
                         <strong className="text-red-300 font-serif flex items-center gap-1.5 text-xs sm:text-sm">
                           <Flame className="w-4 h-4 text-red-400" />
