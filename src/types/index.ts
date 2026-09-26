@@ -336,3 +336,45 @@ export interface NpcQuestFlowItem {
   steps: NpcQuestStep[];
 }
 
+// --- Class Gear Progression (職業別・時期別おすすめ装備) ---
+export interface GearItemDetail {
+  id: string;
+  name: string;
+  type: string; // 例: '大曲剣 (喪色)', '重装甲冑一式', '軽大剣'
+  category: 'weapon' | 'armor' | 'catalyst' | 'shield';
+  statReq?: string; // 必要能力値
+  location: string; // エリア・最寄り祝福
+  bossRequired: boolean;
+  bossName?: string;
+  howToGet: string; // 具体的な入手手順・取得方法
+  features: string; // 性能・特殊効果・おすすめの理由
+  dlc?: boolean; // DLC装備フラグ
+}
+
+export interface ClassPhaseProgression {
+  phase: 'early' | 'mid' | 'late' | 'dlc';
+  phaseLabel: string;
+  phaseBadge: string;
+  targetArea: string;
+  recommendedWeapons: GearItemDetail[];
+  recommendedArmors: GearItemDetail[];
+  phaseAdvice: string; // その時期の育成・装備アドバイス
+}
+
+export interface ClassGearProgressionItem {
+  id: string;
+  name: string;
+  enName: string;
+  role: string;
+  badge: string;
+  features: string;
+  compatibleClasses: string[]; // 対象素性（放浪騎士、勇者など）
+  phases: {
+    early: ClassPhaseProgression;
+    mid: ClassPhaseProgression;
+    late: ClassPhaseProgression;
+    dlc: ClassPhaseProgression;
+  };
+}
+
+

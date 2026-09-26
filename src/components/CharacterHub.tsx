@@ -19,7 +19,7 @@ export const CharacterHub: React.FC<CharacterHubProps> = ({ initialSubTab }) => 
 
   const subTabs = [
     { id: 'controls', label: '基本操作・心得・魔術・祈祷', shortLabel: '操作・魔法', icon: Gamepad2 },
-    { id: 'classes', label: '素性 ＆ おすすめ装備', shortLabel: '素性・装備', icon: Sword },
+    { id: 'classes', label: '職業別装備 (本編/DLC) ＆ 素性', shortLabel: '職業・装備', icon: Sword },
     { id: 'builds', label: 'おすすめビルド・ステ振り', shortLabel: 'ビルド・育成', icon: Target },
   ];
 
