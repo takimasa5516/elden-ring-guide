@@ -6,9 +6,13 @@ import { Gamepad2, Sword, Target } from 'lucide-react';
 
 interface CharacterHubProps {
   initialSubTab?: string;
+  onNavigateToMap?: (regionId: string, pinId?: string, title?: string) => void;
 }
 
-export const CharacterHub: React.FC<CharacterHubProps> = ({ initialSubTab }) => {
+export const CharacterHub: React.FC<CharacterHubProps> = ({
+  initialSubTab,
+  onNavigateToMap,
+}) => {
   const [activeSubTab, setActiveSubTab] = useState<string>(initialSubTab || 'controls');
 
   useEffect(() => {
@@ -56,7 +60,7 @@ export const CharacterHub: React.FC<CharacterHubProps> = ({ initialSubTab }) => 
       {/* Render Subtab Section */}
       <div className="pt-2">
         {activeSubTab === 'controls' && <ControlsSection />}
-        {activeSubTab === 'classes' && <ClassesWeaponsSection />}
+        {activeSubTab === 'classes' && <ClassesWeaponsSection onNavigateToMap={onNavigateToMap} />}
         {activeSubTab === 'builds' && <BuildsSection />}
       </div>
     </div>

@@ -3,11 +3,22 @@ import { classesList } from '../data/classesData';
 import { weaponsList } from '../data/weaponsData';
 import { ClassGearProgressionSection } from './ClassGearProgressionSection';
 import { Sword, Shield, Sparkles, MapPin, Check, Search, Compass, Layers } from 'lucide-react';
+import { resolveMapTarget } from '../utils/mapResolver';
 
-export const ClassesWeaponsSection: React.FC = () => {
+interface ClassesWeaponsSectionProps {
+  onNavigateToMap?: (regionId: string, pinId?: string, title?: string) => void;
+}
+
+export const ClassesWeaponsSection: React.FC<ClassesWeaponsSectionProps> = ({ onNavigateToMap }) => {
   const [activeMode, setActiveMode] = useState<'progression' | 'starter'>('progression');
   const [weaponCategory, setWeaponCategory] = useState<'all' | 'melee' | 'catalyst' | 'shield'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const handleOpenMap = (locationText: string, weaponName: string) => {
+    if (!onNavigateToMap) return;
+    const target = resolveMapTarget(locationText);
+    onNavigateToMap(target.regionId, target.pinId, `武器入手：${weaponName} (${target.regionName})`);
+  };
 
   const filteredWeapons = weaponsList.filter((weapon) => {
     const matchesCat = weaponCategory === 'all' || weapon.category === weaponCategory;
@@ -50,7 +61,7 @@ export const ClassesWeaponsSection: React.FC = () => {
       {/* MODE 1: 職業別・時期別おすすめ装備 (本編・DLC影の地完全対応) */}
       {activeMode === 'progression' && (
         <div className="animate-fadeIn">
-          <ClassGearProgressionSection />
+          <ClassGearProgressionSection onNavigateToMap={onNavigateToMap} />
         </div>
       )}
 
@@ -243,12 +254,22 @@ export const ClassesWeaponsSection: React.FC = () => {
                     </div>
 
                     <div className="space-y-2 text-xs">
-                      <div className="flex items-start gap-1.5 text-gray-300">
-                        <MapPin className="w-4 h-4 text-elden-gold shrink-0 mt-0.5" />
-                        <div>
-                          <span className="font-semibold text-white">{weapon.location}</span>
-                          <p className="text-[11px] text-gray-400 mt-0.5">{weapon.howToGet}</p>
+                      <div className="flex items-start justify-between gap-1.5 text-gray-300 bg-black/40 p-2.5 rounded-lg border border-white/5">
+                        <div className="flex items-start gap-1.5 min-w-0">
+                          <MapPin className="w-4 h-4 text-elden-gold shrink-0 mt-0.5" />
+                          <div className="min-w-0">
+                            <span className="font-semibold text-white block">{weapon.location}</span>
+                            <p className="text-[11px] text-gray-400 mt-0.5 leading-relaxed">{weapon.howToGet}</p>
+                          </div>
                         </div>
+                        <button
+                          onClick={() => handleOpenMap(weapon.location, weapon.name)}
+                          className="px-2 py-1 rounded bg-elden-gold text-black hover:bg-elden-gold-light text-[10px] font-bold shrink-0 shadow transition-all active:scale-95 cursor-pointer flex items-center gap-1"
+                          title="マップで場所を確認"
+                        >
+                          <Compass className="w-3 h-3" />
+                          <span>地図</span>
+                        </button>
                       </div>
 
                       <p className="text-xs text-gray-300 bg-elden-card/80 p-2.5 rounded-lg border border-elden-border/60 leading-relaxed">

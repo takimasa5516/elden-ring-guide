@@ -6,9 +6,13 @@ import { Swords, Hammer, Sparkles } from 'lucide-react';
 
 interface EquipmentHubProps {
   initialSubTab?: string;
+  onNavigateToMap?: (regionId: string, pinId?: string, title?: string) => void;
 }
 
-export const EquipmentHub: React.FC<EquipmentHubProps> = ({ initialSubTab }) => {
+export const EquipmentHub: React.FC<EquipmentHubProps> = ({
+  initialSubTab,
+  onNavigateToMap,
+}) => {
   const [activeSubTab, setActiveSubTab] = useState<string>(initialSubTab || 'ashes');
 
   useEffect(() => {
@@ -55,9 +59,9 @@ export const EquipmentHub: React.FC<EquipmentHubProps> = ({ initialSubTab }) => 
 
       {/* Render Subtab Section */}
       <div className="pt-2">
-        {activeSubTab === 'ashes' && <AshesOfWarSection />}
+        {activeSubTab === 'ashes' && <AshesOfWarSection onNavigateToMap={onNavigateToMap} />}
         {activeSubTab === 'smithing' && <SmithingSection />}
-        {activeSubTab === 'useful' && <UsefulTipsSection />}
+        {activeSubTab === 'useful' && <UsefulTipsSection onNavigateToMap={onNavigateToMap} />}
       </div>
     </div>
   );

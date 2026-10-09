@@ -20,12 +20,28 @@ import {
   Swords,
   Sparkles,
 } from 'lucide-react';
+import { resolveMapTarget } from '../utils/mapResolver';
 
-export const NpcSafetySection: React.FC = () => {
+interface NpcSafetySectionProps {
+  onNavigateToMap?: (regionId: string, pinId?: string, title?: string) => void;
+}
+
+export const NpcSafetySection: React.FC<NpcSafetySectionProps> = ({ onNavigateToMap }) => {
   const [activeTab, setActiveTab] = useState<'flow' | 'alerts'>('flow');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [expandedNpc, setExpandedNpc] = useState<string | null>('ranni');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  const handleOpenMap = (
+    locationText: string,
+    eventLabel: string,
+    manualRegionId?: string,
+    manualPinId?: string
+  ) => {
+    if (!onNavigateToMap) return;
+    const target = resolveMapTarget(locationText, manualRegionId, manualPinId);
+    onNavigateToMap(target.regionId, target.pinId, `${eventLabel}：${target.pinName || target.regionName}`);
+  };
 
   const categories = [
     { id: 'all', label: 'すべて (13)' },
@@ -188,11 +204,19 @@ export const NpcSafetySection: React.FC = () => {
                         {npc.summary}
                       </p>
 
-                      <div className="flex flex-wrap items-center gap-y-1 gap-x-3 text-[11px] text-elden-gold-light/90 pt-0.5">
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3.5 h-3.5 text-elden-gold shrink-0" />
+                      <div className="flex flex-wrap items-center gap-y-1 gap-x-2 text-[11px] text-elden-gold-light/90 pt-0.5">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenMap(npc.firstLocation, `${npc.name} 初遭遇`);
+                          }}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-black/60 hover:bg-elden-gold hover:text-black text-elden-gold-light border border-elden-gold/40 transition-colors cursor-pointer group"
+                          title="タップして初遭遇地点のマップを表示"
+                        >
+                          <MapPin className="w-3.5 h-3.5 text-elden-gold group-hover:text-black shrink-0" />
                           <span>初遭遇: {npc.firstLocation}</span>
-                        </span>
+                          <span className="text-[9px] underline opacity-80 ml-0.5">地図へ</span>
+                        </button>
                         <span className="text-gray-500">•</span>
                         <span className="flex items-center gap-1 text-gray-300">
                           <Compass className="w-3.5 h-3.5 text-amber-400 shrink-0" />
@@ -242,14 +266,27 @@ export const NpcSafetySection: React.FC = () => {
                           <div className="flex items-center gap-1.5 min-w-max">
                             {npc.steps.map((step, idx) => (
                               <React.Fragment key={step.step}>
-                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/70 border border-elden-gold/40 text-[11px] text-gray-200 shadow-sm">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOpenMap(
+                                      step.destination || step.location || '',
+                                      `${npc.name} Step ${step.step}`,
+                                      step.regionId,
+                                      step.pinId
+                                    );
+                                  }}
+                                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/70 hover:bg-elden-gold/25 hover:border-elden-gold border border-elden-gold/40 text-[11px] text-gray-200 transition-all shadow-sm group cursor-pointer active:scale-95"
+                                  title="タップして該当マップを表示"
+                                >
                                   <span className="w-4 h-4 rounded-full bg-elden-gold text-black font-mono font-bold flex items-center justify-center text-[10px] shrink-0">
                                     {step.step}
                                   </span>
-                                  <span className="font-medium text-white max-w-[160px] truncate">
+                                  <span className="font-medium text-white max-w-[150px] truncate group-hover:text-elden-gold-light">
                                     {step.summary || step.destination || step.location || ''}
                                   </span>
-                                </div>
+                                  <MapPin className="w-3 h-3 text-amber-400 group-hover:scale-110 shrink-0" />
+                                </button>
                                 {idx < npc.steps.length - 1 && (
                                   <ArrowRight className="w-3.5 h-3.5 text-elden-gold/60 shrink-0" />
                                 )}
@@ -358,17 +395,34 @@ export const NpcSafetySection: React.FC = () => {
                                   </div>
                                 </div>
 
-                                {/* Destination (行先・最寄り祝福) */}
-                                <div className="p-2 sm:p-2.5 rounded-lg bg-elden-panel/80 border border-white/5 flex items-start gap-2">
-                                  <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                                  <div className="space-y-0.5">
-                                    <span className="text-[10px] font-bold text-amber-300 tracking-wider block uppercase">
-                                      【行先・最寄り祝福】
-                                    </span>
-                                    <span className="text-xs text-white font-medium">
-                                      {stepDestination}
-                                    </span>
+                                {/* Destination (行先・最寄り祝福 ＆ マップ連携ボタン) */}
+                                <div className="p-2.5 sm:p-3 rounded-lg bg-elden-panel/90 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-sm">
+                                  <div className="flex items-start gap-2 min-w-0">
+                                    <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                                    <div className="space-y-0.5 min-w-0">
+                                      <span className="text-[10px] font-bold text-amber-300 tracking-wider block uppercase">
+                                        【行先・最寄り祝福】
+                                      </span>
+                                      <span className="text-xs text-white font-medium break-words leading-relaxed">
+                                        {stepDestination}
+                                      </span>
+                                    </div>
                                   </div>
+                                  <button
+                                    onClick={() =>
+                                      handleOpenMap(
+                                        stepDestination,
+                                        `${npc.name} Step ${step.step}`,
+                                        step.regionId,
+                                        step.pinId
+                                      )
+                                    }
+                                    className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-elden-gold to-amber-400 hover:from-elden-gold-light hover:to-amber-300 text-black font-serif font-bold text-xs shadow-md transition-all shrink-0 active:scale-95 cursor-pointer w-full sm:w-auto"
+                                    title="タップして該当エリアのマップを表示"
+                                  >
+                                    <Compass className="w-3.5 h-3.5 shrink-0" />
+                                    <span>📍 マップで場所を見る</span>
+                                  </button>
                                 </div>
 
                                 {/* Action (対応内容・攻略手順) */}
@@ -514,6 +568,29 @@ export const NpcSafetySection: React.FC = () => {
                     ))}
                   </div>
                 )}
+
+                {/* Map Jump Button for Missable Alerts */}
+                <div className="pt-2 flex justify-end">
+                  <button
+                    onClick={() => {
+                      if (alert.id === 'capital-ash') {
+                        onNavigateToMap?.('leyndell', 'ly6', '王都ローデイル (巨大な槍・グランサクス)');
+                      } else if (alert.id === 'volcano-manor-boss') {
+                        onNavigateToMap?.('altus', 'ap11', 'ゲルミア火山 (火山館)');
+                      } else if (alert.id === 'npc-hostility') {
+                        onNavigateToMap?.('liurnia', 'lp9', '湖のリエーニエ (結びの教会・贖罪の泉)');
+                      } else if (alert.id === 'seluvis-potion') {
+                        onNavigateToMap?.('liurnia', 'lp14', '湖のリエーニエ (スリーシスターズ)');
+                      } else {
+                        onNavigateToMap?.('world_overworld', undefined, '狭間の地 全体');
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/60 hover:bg-elden-gold hover:text-black text-elden-gold-light border border-elden-gold/40 text-xs font-serif font-bold transition-all shadow cursor-pointer active:scale-95"
+                  >
+                    <Compass className="w-3.5 h-3.5" />
+                    <span>📍 関連エリアのマップを確認</span>
+                  </button>
+                </div>
               </div>
             ))}
           </div>

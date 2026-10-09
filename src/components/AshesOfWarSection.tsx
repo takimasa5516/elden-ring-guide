@@ -6,14 +6,31 @@ import {
   Search,
   Filter,
   Info,
+  Compass,
 } from 'lucide-react';
 import { ashesOfWarList, whetbladeList } from '../data/ashesOfWarData';
 import { AshOfWarItem } from '../types';
+import { resolveMapTarget } from '../utils/mapResolver';
 
-export const AshesOfWarSection: React.FC = () => {
+interface AshesOfWarSectionProps {
+  onNavigateToMap?: (regionId: string, pinId?: string, title?: string) => void;
+}
+
+export const AshesOfWarSection: React.FC<AshesOfWarSectionProps> = ({ onNavigateToMap }) => {
   const [activeSubTab, setActiveSubTab] = useState<'ashes' | 'whetblades'>('ashes');
   const [selectedAffinity, setSelectedAffinity] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  const handleOpenMap = (
+    locationText: string,
+    itemName: string,
+    manualRegionId?: string,
+    manualPinId?: string
+  ) => {
+    if (!onNavigateToMap) return;
+    const target = resolveMapTarget(locationText, manualRegionId, manualPinId);
+    onNavigateToMap(target.regionId, target.pinId, `戦灰・砥石刃入手：${itemName} (${target.regionName})`);
+  };
 
   const affinities = [
     { id: 'all', label: 'すべて' },
@@ -140,15 +157,25 @@ export const AshesOfWarSection: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="text-xs text-gray-300 space-y-1 bg-black/40 p-3 rounded-xl border border-gray-800/80">
+                  <div className="text-xs text-gray-300 space-y-2 bg-black/40 p-3 rounded-xl border border-gray-800/80">
                     <p>
                       <span className="text-gray-400 font-bold">対応武器:</span>{' '}
                       <span className="text-gray-200">{ash.weaponTypes}</span>
                     </p>
-                    <p>
-                      <span className="text-gray-400 font-bold">入手場所:</span>{' '}
-                      <span className="text-elden-gold-light">{ash.location}</span>
-                    </p>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pt-1 border-t border-white/5">
+                      <div className="min-w-0">
+                        <span className="text-gray-400 font-bold">入手場所: </span>
+                        <span className="text-elden-gold-light font-medium">{ash.location}</span>
+                      </div>
+                      <button
+                        onClick={() => handleOpenMap(ash.location, ash.name, ash.regionId, ash.pinId)}
+                        className="inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg bg-elden-gold text-black hover:bg-elden-gold-light text-[11px] font-bold transition-all shadow active:scale-95 cursor-pointer shrink-0 w-full sm:w-auto"
+                        title="マップで場所を確認"
+                      >
+                        <Compass className="w-3.5 h-3.5" />
+                        <span>📍 マップ表示</span>
+                      </button>
+                    </div>
                     <p className="text-gray-400 text-[11px] mt-1 leading-relaxed">
                       {ash.howToGet}
                     </p>
@@ -204,7 +231,17 @@ export const AshesOfWarSection: React.FC = () => {
                       <h4 className="text-base sm:text-lg font-bold text-white font-serif">
                         {wb.name}
                       </h4>
-                      <p className="text-xs text-gray-400">場所: {wb.location}</p>
+                      <div className="flex items-center gap-2 pt-0.5">
+                        <p className="text-xs text-gray-400">場所: {wb.location}</p>
+                        <button
+                          onClick={() => handleOpenMap(wb.location, wb.name, wb.regionId, wb.pinId)}
+                          className="px-2 py-0.5 rounded bg-elden-gold text-black hover:bg-elden-gold-light text-[10px] font-bold transition-all shadow active:scale-95 cursor-pointer inline-flex items-center gap-1"
+                          title="マップで場所を確認"
+                        >
+                          <Compass className="w-3 h-3" />
+                          <span>地図</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
 

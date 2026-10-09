@@ -8,10 +8,21 @@ import {
   larvalTearsList,
   essentialTricks,
 } from '../data/usefulTipsData';
-import { Sparkles, Ghost, Shield, RefreshCw, AlertCircle, Check, Zap, Layers, Crown } from 'lucide-react';
+import { Sparkles, Ghost, Shield, RefreshCw, AlertCircle, Check, Zap, Layers, Crown, Compass } from 'lucide-react';
+import { resolveMapTarget } from '../utils/mapResolver';
 
-export const UsefulTipsSection: React.FC = () => {
+interface UsefulTipsSectionProps {
+  onNavigateToMap?: (regionId: string, pinId?: string, title?: string) => void;
+}
+
+export const UsefulTipsSection: React.FC<UsefulTipsSectionProps> = ({ onNavigateToMap }) => {
   const [activeTab, setActiveTab] = useState<'ashes' | 'talismans' | 'runes' | 'respec' | 'tricks'>('ashes');
+
+  const handleOpenMap = (locationText: string, itemName: string) => {
+    if (!onNavigateToMap) return;
+    const target = resolveMapTarget(locationText);
+    onNavigateToMap(target.regionId, target.pinId, `アイテム入手：${itemName} (${target.regionName})`);
+  };
 
   return (
     <div className="space-y-8 pb-12">
@@ -137,9 +148,19 @@ export const UsefulTipsSection: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="text-xs text-gray-300">
-                    <span className="text-elden-gold font-medium">入手場所: </span>
-                    {ash.location}
+                  <div className="flex items-center justify-between gap-2 text-xs text-gray-300">
+                    <div>
+                      <span className="text-elden-gold font-medium">入手場所: </span>
+                      <span>{ash.location}</span>
+                    </div>
+                    <button
+                      onClick={() => handleOpenMap(ash.location, ash.name)}
+                      className="px-2 py-0.5 rounded bg-elden-gold text-black hover:bg-elden-gold-light text-[10px] font-bold transition-all shadow active:scale-95 cursor-pointer inline-flex items-center gap-1 shrink-0"
+                      title="マップで場所を確認"
+                    >
+                      <Compass className="w-3 h-3" />
+                      <span>地図</span>
+                    </button>
                   </div>
 
                   <p className="text-[11px] text-gray-400 leading-relaxed">
@@ -237,9 +258,19 @@ export const UsefulTipsSection: React.FC = () => {
                   <div className="text-xs text-yellow-300 font-bold bg-yellow-950/20 p-2 rounded border border-yellow-800/30">
                     効果: {talisman.effect}
                   </div>
-                  <div className="text-xs text-gray-300">
-                    <span className="text-elden-gold font-medium">場所: </span>
-                    {talisman.location}
+                  <div className="flex items-center justify-between gap-2 text-xs text-gray-300">
+                    <div>
+                      <span className="text-elden-gold font-medium">場所: </span>
+                      <span>{talisman.location}</span>
+                    </div>
+                    <button
+                      onClick={() => handleOpenMap(talisman.location, talisman.name)}
+                      className="px-2 py-0.5 rounded bg-elden-gold text-black hover:bg-elden-gold-light text-[10px] font-bold transition-all shadow active:scale-95 cursor-pointer inline-flex items-center gap-1 shrink-0"
+                      title="マップで場所を確認"
+                    >
+                      <Compass className="w-3 h-3" />
+                      <span>地図</span>
+                    </button>
                   </div>
                   <p className="text-[11px] text-gray-400 leading-relaxed">
                     {talisman.howToGet}

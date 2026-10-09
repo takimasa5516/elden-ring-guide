@@ -1,0 +1,238 @@
+import { regionsData } from '../data/regionMapData';
+
+export interface MapTargetResult {
+  regionId: string;
+  pinId?: string;
+  regionName: string;
+  pinName?: string;
+  displayLabel: string;
+}
+
+// 地域名定義辞書
+const REGION_NAMES: Record<string, string> = {
+  world_overworld: '狭間の地 全体俯瞰',
+  limgrave: 'リムグレイブ・啜り泣き',
+  liurnia: '湖のリエーニエ',
+  caelid: 'ケイリッド・竜塚',
+  altus: 'アルター高原・火山',
+  leyndell: '王都ローデイル・地下',
+  mountaintops: '巨人山嶺・聖別雪原',
+  haligtree: 'ミケラの聖樹',
+  farum_azula: '崩れゆくファルム・アズラ',
+  siofra_nokron: 'シーフラ河・ノクローン・王朝',
+  ainsel_rot: 'エインセル河・ノクステラ・腐れ湖',
+  deeproot: '深き根の底',
+  shadow_realm: 'DLC 影の地',
+  shadow_routes: 'DLC 進行ルート攻略',
+};
+
+interface LocationRule {
+  keywords: string[];
+  regionId: string;
+  pinId?: string;
+}
+
+// 高精度キーワードマッチルール
+const LOCATION_RULES: LocationRule[] = [
+  // --- DLC 影の地 ---
+  { keywords: ['ベルラート', '神獣獅子舞'], regionId: 'shadow_realm', pinId: 'sr2' },
+  { keywords: ['エンシス', 'レラーナ'], regionId: 'shadow_realm', pinId: 'sr3' },
+  { keywords: ['影の城', 'メスメル', '保管庫'], regionId: 'shadow_realm', pinId: 'sr5' },
+  { keywords: ['教区', '影樹の化身'], regionId: 'shadow_realm', pinId: 'sr6' },
+  { keywords: ['青海岸', '泥濘の騎士'], regionId: 'shadow_realm', pinId: 'sr8' },
+  { keywords: ['尖った山', 'ベール', 'イエゴン'], regionId: 'shadow_realm', pinId: 'sr10' },
+  { keywords: ['奈落の森', 'ミドラー'], regionId: 'shadow_realm', pinId: 'sr11' },
+  { keywords: ['ラウフ', 'ロミナ'], regionId: 'shadow_realm', pinId: 'sr12' },
+  { keywords: ['エニル・イリム', 'レダ', '約束の王'], regionId: 'shadow_realm', pinId: 'sr13' },
+  { keywords: ['墓地平原', '影のアルター', 'DLC', '影の地'], regionId: 'shadow_realm', pinId: 'sr1' },
+
+  // --- 地下世界：深き根の底 ---
+  { keywords: ['死王子の座', 'フォルサクス', 'フィアの寝所', '死王子'], regionId: 'deeproot', pinId: 'dr6' },
+  { keywords: ['根渡りの先'], regionId: 'deeproot', pinId: 'dr5' },
+  { keywords: ['名も無き永遠の都', 'シルリア'], regionId: 'deeproot', pinId: 'dr4' },
+  { keywords: ['深き根の底', '深き根'], regionId: 'deeproot', pinId: 'dr3' },
+
+  // --- 地下世界：エインセル河・ノクステラ・腐れ湖 ---
+  { keywords: ['アステール', '暗黒の落とし子'], regionId: 'ainsel_rot', pinId: 'ar9' },
+  { keywords: ['大回廊'], regionId: 'ainsel_rot', pinId: 'ar8' },
+  { keywords: ['腐れ湖'], regionId: 'ainsel_rot', pinId: 'ar7' },
+  { keywords: ['ノクステラ', '災いの影'], regionId: 'ainsel_rot', pinId: 'ar5' },
+  { keywords: ['小さなラニ', 'エインセル河本流'], regionId: 'ainsel_rot', pinId: 'ar3' },
+  { keywords: ['エインセル'], regionId: 'ainsel_rot', pinId: 'ar1' },
+
+  // --- 地下世界：シーフラ河・ノクローン・モーグウィン王朝 ---
+  { keywords: ['神人眠りの繭', 'モーグウィン王朝', '血の君主', '王朝'], regionId: 'siofra_nokron', pinId: 'sn13' },
+  { keywords: ['王朝に至る崖路', 'カラス'], regionId: 'siofra_nokron', pinId: 'sn11' },
+  { keywords: ['大滝壺', '水道橋'], regionId: 'siofra_nokron', pinId: 'sn8' },
+  { keywords: ['夜の神域', '指殺しの刃'], regionId: 'siofra_nokron', pinId: 'sn5' },
+  { keywords: ['写し身の雫'], regionId: 'siofra_nokron', pinId: 'sn4' },
+  { keywords: ['ノクローン'], regionId: 'siofra_nokron', pinId: 'sn3' },
+  { keywords: ['シーフラ河', '角骸の霊場'], regionId: 'siofra_nokron', pinId: 'sn2' },
+
+  // --- 崩れゆくファルム・アズラ ---
+  { keywords: ['マリケス', '黒き剣'], regionId: 'farum_azula', pinId: 'fa10' },
+  { keywords: ['プラキドサクス', '竜王'], regionId: 'farum_azula', pinId: 'fa9' },
+  { keywords: ['大橋梁の脇'], regionId: 'farum_azula', pinId: 'fa8' },
+  { keywords: ['神肌のふたり', '竜聖堂の祭壇'], regionId: 'farum_azula', pinId: 'fa5' },
+  { keywords: ['竜の聖堂'], regionId: 'farum_azula', pinId: 'fa4' },
+  { keywords: ['竜巻を臨む露台'], regionId: 'farum_azula', pinId: 'fa3' },
+  { keywords: ['ファルム・アズラ', 'ファルムアズラ', '獣墓'], regionId: 'farum_azula', pinId: 'fa1' },
+
+  // --- ミケラの聖樹 ＆ エブレフェール ---
+  { keywords: ['マレニア', '腐敗の女神'], regionId: 'haligtree', pinId: 'ht9' },
+  { keywords: ['排水路', '腐敗沼', '爛れた樹霊'], regionId: 'haligtree', pinId: 'ht7' },
+  { keywords: ['祈祷室', 'エブレフェール'], regionId: 'haligtree', pinId: 'ht5' },
+  { keywords: ['聖樹の大舞台', 'ローレッタ'], regionId: 'haligtree', pinId: 'ht4' },
+  { keywords: ['聖樹の高枝', '聖樹街', 'ミケラの聖樹', '聖樹'], regionId: 'haligtree', pinId: 'ht1' },
+
+  // --- 巨人たちの山嶺 ＆ 聖別雪原 ---
+  { keywords: ['棄教の廃屋', '棄教所'], regionId: 'mountaintops', pinId: 'mp15' },
+  { keywords: ['典礼街オルディナ', 'オルディナ'], regionId: 'mountaintops', pinId: 'mp14' },
+  { keywords: ['聖別雪原', '聖樹への秘路'], regionId: 'mountaintops', pinId: 'mp13' },
+  { keywords: ['巨人の火の釜', '火の釜'], regionId: 'mountaintops', pinId: 'mp12' },
+  { keywords: ['火の巨人'], regionId: 'mountaintops', pinId: 'mp11' },
+  { keywords: ['安息教会', '巨人の墓標', '屍山血海', '翁'], regionId: 'mountaintops', pinId: 'mp10' },
+  { keywords: ['ソール城砦', 'ニアール'], regionId: 'mountaintops', pinId: 'mp9' },
+  { keywords: ['第一マリカ教会'], regionId: 'mountaintops', pinId: 'mp8' },
+  { keywords: ['氷結湖', 'ボレアリス'], regionId: 'mountaintops', pinId: 'mp7' },
+  { keywords: ['古遺跡谷', '雪谷'], regionId: 'mountaintops', pinId: 'mp5' },
+  { keywords: ['ザミエルの廃墟', 'ザミエル'], regionId: 'mountaintops', pinId: 'mp2' },
+  { keywords: ['ロルドの大昇降機', 'ロルド', '山嶺', '巨人たちの山嶺'], regionId: 'mountaintops', pinId: 'mp1' },
+
+  // --- 王都ローデイル ＆ 忌み捨ての地下 ---
+  { keywords: ['狂い火の封印', '三本指', '狂い火受領'], regionId: 'leyndell', pinId: 'ly14' },
+  { keywords: ['忌み捨ての底', '忌み捨ての大聖堂', '忌み子、モーグ'], regionId: 'leyndell', pinId: 'ly12' },
+  { keywords: ['地下大通り脇', '忌み捨ての地下', '忌み捨て'], regionId: 'leyndell', pinId: 'ly10' },
+  { keywords: ['エルデの王座', 'モーゴット'], regionId: 'leyndell', pinId: 'ly9' },
+  { keywords: ['女王の閨'], regionId: 'leyndell', pinId: 'ly8' },
+  { keywords: ['黄金樹の大聖堂', 'ゴッドフレイ'], regionId: 'leyndell', pinId: 'ly7' },
+  { keywords: ['城館一階', '旧円卓'], regionId: 'leyndell', pinId: 'ly4' },
+  { keywords: ['王都下層'], regionId: 'leyndell', pinId: 'ly3' },
+  { keywords: ['大通り脇の露台', 'グランサクス'], regionId: 'leyndell', pinId: 'ly2' },
+  { keywords: ['王都東城壁', '王都ローデイル', 'ローデイル', '王都西城壁'], regionId: 'leyndell', pinId: 'ly1' },
+
+  // --- アルター高原 ＆ ゲルミア火山 ---
+  { keywords: ['火山館', 'ライカード', 'タニス'], regionId: 'altus', pinId: 'ap11' },
+  { keywords: ['ゲルミア火山', '罪人橋'], regionId: 'altus', pinId: 'ap10' },
+  { keywords: ['日陰城', 'エレメール', 'マレー家'], regionId: 'altus', pinId: 'ap9' },
+  { keywords: ['風車村', 'ドミヌラ'], regionId: 'altus', pinId: 'ap8' },
+  { keywords: ['貴族の英雄墓'], regionId: 'altus', pinId: 'ap7' },
+  { keywords: ['小黄金樹教会', '第二マリカ教会', 'エレオノーラ'], regionId: 'altus', pinId: 'ap6' },
+  { keywords: ['外郭の幻影樹', '王都外郭'], regionId: 'altus', pinId: 'ap5' },
+  { keywords: ['封印された坑道'], regionId: 'altus', pinId: 'ap4' },
+  { keywords: ['旧アルター坑道'], regionId: 'altus', pinId: 'ap3' },
+  { keywords: ['アルター街道の三叉路', '黄金樹を臨む丘'], regionId: 'altus', pinId: 'ap2' },
+  { keywords: ['デクタスの大昇降機', 'アルター高原', '血の蠢く廃墟'], regionId: 'altus', pinId: 'ap1' },
+
+  // --- ケイリッド ＆ グレイオールの竜塚 ---
+  { keywords: ['大竜餐教会'], regionId: 'caelid', pinId: 'cp16' },
+  { keywords: ['赤獅子城', 'ラダーン祭り', '不落の大橋'], regionId: 'caelid', pinId: 'cp15' },
+  { keywords: ['獣の神殿', 'グラング'], regionId: 'caelid', pinId: 'cp13' },
+  { keywords: ['レンの魔術師塔'], regionId: 'caelid', pinId: 'cp12' },
+  { keywords: ['グレイオール', '竜塚'], regionId: 'caelid', pinId: 'cp11' },
+  { keywords: ['ファロス砦', 'ラダゴンの爛れ刻印'], regionId: 'caelid', pinId: 'cp10' },
+  { keywords: ['エオニア', 'オニール', '無垢金の針'], regionId: 'caelid', pinId: 'cp9' },
+  { keywords: ['腐れ病の教会', 'ゴウリー'], regionId: 'caelid', pinId: 'cp8' },
+  { keywords: ['サリアの結晶坑道'], regionId: 'caelid', pinId: 'cp7' },
+  { keywords: ['サリア', '魔術街サリア'], regionId: 'caelid', pinId: 'cp6' },
+  { keywords: ['賢者街の廃墟', '隕石の杖', '岩石弾'], regionId: 'caelid', pinId: 'cp5' },
+  { keywords: ['ゲール坑道', '名刀月隠'], regionId: 'caelid', pinId: 'cp4' },
+  { keywords: ['ゲール砦', '獅子斬り'], regionId: 'caelid', pinId: 'cp3' },
+  { keywords: ['燻り教会'], regionId: 'caelid', pinId: 'cp1' },
+  { keywords: ['ケイリッド'], regionId: 'caelid', pinId: 'cp2' },
+
+  // --- 湖のリエーニエ ---
+  { keywords: ['鎮めの教会'], regionId: 'liurnia', pinId: 'lp18' },
+  { keywords: ['ベイルム教会'], regionId: 'liurnia', pinId: 'lp17' },
+  { keywords: ['遺跡断崖', '谷底の隠し村'], regionId: 'liurnia', pinId: 'lp16' },
+  { keywords: ['スリーシスターズ', 'ラニの魔術師塔', 'レナの魔術師塔', 'セルブスの魔術師塔'], regionId: 'liurnia', pinId: 'lp14' },
+  { keywords: ['カーリアの城館', '城館への道', 'イジー'], regionId: 'liurnia', pinId: 'lp13' },
+  { keywords: ['四鐘楼'], regionId: 'liurnia', pinId: 'lp12' },
+  { keywords: ['カーリアの書院', '神授塔'], regionId: 'liurnia', pinId: 'lp11' },
+  { keywords: ['レアルカリア', '大書庫', 'レナラ', '魔術学院'], regionId: 'liurnia', pinId: 'lp10' },
+  { keywords: ['結びの教会', 'ミリエル'], regionId: 'liurnia', pinId: 'lp9' },
+  { keywords: ['レアルカリア結晶坑道'], regionId: 'liurnia', pinId: 'lp8' },
+  { keywords: ['しろがね村', 'アルバス'], regionId: 'liurnia', pinId: 'lp6' },
+  { keywords: ['エビ茹でのボロ家', 'ならず者'], regionId: 'liurnia', pinId: 'lp5' },
+  { keywords: ['バラ教会', 'ヴァレー'], regionId: 'liurnia', pinId: 'lp4' },
+  { keywords: ['見晴らし島', 'ラーヤ'], regionId: 'liurnia', pinId: 'lp4' },
+  { keywords: ['狼の眠るボロ家', 'ラティナ'], regionId: 'liurnia', pinId: 'lp2' },
+  { keywords: ['湖を臨む断崖', 'イリス教会', 'トープス'], regionId: 'liurnia', pinId: 'lp1' },
+  { keywords: ['リエーニエ', '月光の祭壇', 'マヌス・セリス'], regionId: 'liurnia', pinId: 'lp1' },
+
+  // --- リムグレイブ ＆ 啜り泣きの半島 ---
+  { keywords: ['モーンの城', 'モーン城', 'イレーナ', 'エドガー'], regionId: 'limgrave', pinId: 'p20' },
+  { keywords: ['カルの洗礼堂', '病村'], regionId: 'limgrave', pinId: 'p19' },
+  { keywords: ['第四マリカ教会'], regionId: 'limgrave', pinId: 'p17' },
+  { keywords: ['巡礼教会'], regionId: 'limgrave', pinId: 'p16' },
+  { keywords: ['贄送りの大橋', '啜り泣き'], regionId: 'limgrave', pinId: 'p15' },
+  { keywords: ['ストームヴィル城', 'ストームヴィル', 'ゴドリック', 'マルギット'], regionId: 'limgrave', pinId: 'p14' },
+  { keywords: ['呼び水村', 'ティビア'], regionId: 'limgrave', pinId: 'p13' },
+  { keywords: ['ハイト砦', '血の斬撃'], regionId: 'limgrave', pinId: 'p12' },
+  { keywords: ['第三マリカ教会', '霊薬'], regionId: 'limgrave', pinId: 'p11' },
+  { keywords: ['霧の森', 'ブライヴ'], regionId: 'limgrave', pinId: 'p10' },
+  { keywords: ['宿場跡', 'セレン'], regionId: 'limgrave', pinId: 'p9' },
+  { keywords: ['アギール湖', '竜餐教会'], regionId: 'limgrave', pinId: 'p8' },
+  { keywords: ['死に触れた地下墓'], regionId: 'limgrave', pinId: 'p6' },
+  { keywords: ['嵐丘のボロ屋', 'ローデリカ'], regionId: 'limgrave', pinId: 'p5' },
+  { keywords: ['関門前の廃墟', '嵐の関門', '関門前'], regionId: 'limgrave', pinId: 'p4' },
+  { keywords: ['エレの教会', 'カーレ', '魔女レナ'], regionId: 'limgrave', pinId: 'p3' },
+  { keywords: ['導きのはじまり'], regionId: 'limgrave', pinId: 'p2' },
+  { keywords: ['漂着墓地', '学びの洞窟'], regionId: 'limgrave', pinId: 'p1' },
+  { keywords: ['リムグレイブ', '円卓'], regionId: 'limgrave', pinId: 'p2' },
+];
+
+/**
+ * テキストまたは明示指定からマップのターゲット（地域ID・ピンID）を解決
+ */
+export function resolveMapTarget(
+  locationText: string,
+  explicitRegionId?: string,
+  explicitPinId?: string
+): MapTargetResult {
+  // 1. 明示指定がある場合
+  if (explicitRegionId) {
+    const region = regionsData.find((r) => r.id === explicitRegionId) || regionsData[0];
+    const pin = explicitPinId ? region.pins.find((p) => p.id === explicitPinId) : undefined;
+    const regionName = REGION_NAMES[region.id] || region.name;
+    const pinName = pin?.name;
+    const displayLabel = pinName ? `📍 ${regionName} (${pinName})` : `📍 ${regionName}`;
+
+    return {
+      regionId: region.id,
+      pinId: pin?.id,
+      regionName,
+      pinName,
+      displayLabel,
+    };
+  }
+
+  // 2. テキストからキーワード判定
+  const text = locationText || '';
+  for (const rule of LOCATION_RULES) {
+    if (rule.keywords.some((kw) => text.includes(kw))) {
+      const region = regionsData.find((r) => r.id === rule.regionId) || regionsData[0];
+      const pin = rule.pinId ? region.pins.find((p) => p.id === rule.pinId) : undefined;
+      const regionName = REGION_NAMES[region.id] || region.name;
+      const pinName = pin?.name;
+      const displayLabel = pinName ? `📍 ${regionName} (${pinName})` : `📍 ${regionName}`;
+
+      return {
+        regionId: region.id,
+        pinId: pin?.id,
+        regionName,
+        pinName,
+        displayLabel,
+      };
+    }
+  }
+
+  // 3. デフォルト (リムグレイブ)
+  return {
+    regionId: 'limgrave',
+    pinId: 'p2',
+    regionName: 'リムグレイブ・啜り泣き',
+    pinName: '導きのはじまり',
+    displayLabel: '📍 リムグレイブ・啜り泣き',
+  };
+}

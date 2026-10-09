@@ -81,6 +81,19 @@ export const App: React.FC = () => {
     setCheckedItems({});
   };
 
+  const [mapTarget, setMapTarget] = useState<{
+    regionId: string;
+    pinId?: string;
+    title?: string;
+  } | null>(null);
+
+  // マップへのダイレクトナビゲーション（NPCイベント、武器・防具・戦灰取得からの連携）
+  const navigateToMap = (regionId: string, pinId?: string, title?: string) => {
+    setMapTarget({ regionId, pinId, title });
+    setActiveTab('regions');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Smart navigation supporting both consolidated Hubs and individual legacy subtab IDs
   const navigateTab = (tabId: string) => {
     if (['lost-guide', 'progression', 'npc-safety', 'runes'].includes(tabId)) {
@@ -126,14 +139,27 @@ export const App: React.FC = () => {
             <ProgressionHub
               initialSubTab={hubSubTabs.progression}
               onNavigateTab={navigateTab}
+              onNavigateToMap={navigateToMap}
             />
           )}
-          {activeTab === 'regions' && <RegionMapSection />}
+          {activeTab === 'regions' && (
+            <RegionMapSection
+              targetRegionId={mapTarget?.regionId}
+              targetPinId={mapTarget?.pinId}
+              targetTitle={mapTarget?.title}
+            />
+          )}
           {activeTab === 'character-hub' && (
-            <CharacterHub initialSubTab={hubSubTabs.character} />
+            <CharacterHub
+              initialSubTab={hubSubTabs.character}
+              onNavigateToMap={navigateToMap}
+            />
           )}
           {activeTab === 'equipment-hub' && (
-            <EquipmentHub initialSubTab={hubSubTabs.equipment} />
+            <EquipmentHub
+              initialSubTab={hubSubTabs.equipment}
+              onNavigateToMap={navigateToMap}
+            />
           )}
 
           {/* --- 状態保持が必要なツール（統合の対象から完全に除外・独立維持） --- */}

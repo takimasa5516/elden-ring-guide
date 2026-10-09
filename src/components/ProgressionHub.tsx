@@ -8,9 +8,14 @@ import { HelpCircle, Compass, ShieldAlert, Coins } from 'lucide-react';
 interface ProgressionHubProps {
   initialSubTab?: string;
   onNavigateTab?: (tabId: string) => void;
+  onNavigateToMap?: (regionId: string, pinId?: string, title?: string) => void;
 }
 
-export const ProgressionHub: React.FC<ProgressionHubProps> = ({ initialSubTab, onNavigateTab }) => {
+export const ProgressionHub: React.FC<ProgressionHubProps> = ({
+  initialSubTab,
+  onNavigateTab,
+  onNavigateToMap,
+}) => {
   const [activeSubTab, setActiveSubTab] = useState<string>(initialSubTab || 'lost-guide');
 
   useEffect(() => {
@@ -60,7 +65,7 @@ export const ProgressionHub: React.FC<ProgressionHubProps> = ({ initialSubTab, o
       <div className="pt-2">
         {activeSubTab === 'lost-guide' && <LostGuideSection onNavigateTab={onNavigateTab} />}
         {activeSubTab === 'progression' && <ProgressionSection />}
-        {activeSubTab === 'npc-safety' && <NpcSafetySection />}
+        {activeSubTab === 'npc-safety' && <NpcSafetySection onNavigateToMap={onNavigateToMap} />}
         {activeSubTab === 'runes' && <RuneFarmingSection />}
       </div>
     </div>

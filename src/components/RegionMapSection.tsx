@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { regionsData, MapPin, RegionCategory } from '../data/regionMapData';
 import {
   MapPin as PinIcon,
@@ -17,13 +17,48 @@ import {
   Sparkles
 } from 'lucide-react';
 
-export const RegionMapSection: React.FC = () => {
+interface RegionMapSectionProps {
+  targetRegionId?: string;
+  targetPinId?: string;
+  targetTitle?: string;
+}
+
+export const RegionMapSection: React.FC<RegionMapSectionProps> = ({
+  targetRegionId,
+  targetPinId,
+  targetTitle,
+}) => {
   const [selectedCategory, setSelectedCategory] = useState<RegionCategory | 'all'>('world');
   const [selectedRegionId, setSelectedRegionId] = useState<string>(regionsData[0].id);
   const [selectedPin, setSelectedPin] = useState<MapPin | null>(regionsData[0].pins[0]);
   // pinMode: 'all' (地名＋番号), 'compact' (番号のみ), 'none' (ピンなし・白地図)
   const [pinMode, setPinMode] = useState<'all' | 'compact' | 'none'>('all');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [activeAlertTitle, setActiveAlertTitle] = useState<string | null>(null);
+
+  // 外部からのジャンプ（NPCイベントや装備・戦灰のタップ）を検知して該当地図とピンを即時選択
+  useEffect(() => {
+    if (targetRegionId) {
+      const reg = regionsData.find((r) => r.id === targetRegionId);
+      if (reg) {
+        setSelectedRegionId(reg.id);
+        setSelectedCategory(reg.category);
+        if (targetPinId) {
+          const pin = reg.pins.find((p) => p.id === targetPinId);
+          if (pin) {
+            setSelectedPin(pin);
+          } else {
+            setSelectedPin(reg.pins[0] || null);
+          }
+        } else {
+          setSelectedPin(reg.pins[0] || null);
+        }
+        if (targetTitle) {
+          setActiveAlertTitle(targetTitle);
+        }
+      }
+    }
+  }, [targetRegionId, targetPinId, targetTitle]);
 
   const categories = useMemo(() => [
     { id: 'world' as const, label: '全体俯瞰', icon: Globe, count: regionsData.filter(r => r.category === 'world').length },
@@ -90,6 +125,37 @@ export const RegionMapSection: React.FC = () => {
           そして大型DLC「影の地」全域と各エリアへの進行ルート図まで、<strong>全14マップ・訪問ポイント完全対応</strong>で収録しています。
         </p>
       </div>
+
+      {/* 外部ナビゲーション連動表示バー */}
+      {activeAlertTitle && (
+        <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-r from-elden-gold/25 via-amber-950/40 to-elden-gold/20 border-2 border-elden-gold shadow-lg flex items-center justify-between gap-3 animate-fadeIn">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="w-8 h-8 rounded-full bg-elden-gold text-black flex items-center justify-center shrink-0 font-bold">
+              <PinIcon className="w-4 h-4" />
+            </span>
+            <div className="min-w-0">
+              <div className="text-[11px] font-bold text-elden-gold-light uppercase tracking-wider">
+                【イベント・装備マップ連動表示中】
+              </div>
+              <div className="text-xs sm:text-sm font-bold text-white truncate font-serif">
+                {activeAlertTitle}
+              </div>
+              {selectedPin && (
+                <div className="text-[11px] text-amber-200 truncate">
+                  📍 最寄り地点: <span className="font-bold underline">{selectedPin.name}</span> （No.{selectedPin.number}）
+                </div>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={() => setActiveAlertTitle(null)}
+            className="p-1.5 rounded-lg bg-black/50 hover:bg-black/80 text-gray-400 hover:text-white border border-white/10 shrink-0"
+            title="通知を閉じる"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Category Tabs (スマホ優先設計) */}
       <div className="space-y-2">

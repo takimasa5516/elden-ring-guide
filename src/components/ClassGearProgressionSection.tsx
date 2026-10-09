@@ -10,12 +10,31 @@ import {
   ShieldCheck,
   Layers,
   Zap,
+  Compass,
 } from 'lucide-react';
+import { resolveMapTarget } from '../utils/mapResolver';
 
-export const ClassGearProgressionSection: React.FC = () => {
+interface ClassGearProgressionSectionProps {
+  onNavigateToMap?: (regionId: string, pinId?: string, title?: string) => void;
+}
+
+export const ClassGearProgressionSection: React.FC<ClassGearProgressionSectionProps> = ({
+  onNavigateToMap,
+}) => {
   const [selectedClassId, setSelectedClassId] = useState<string>('vagabond');
   const [selectedPhase, setSelectedPhase] = useState<'early' | 'mid' | 'late' | 'dlc'>('early');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  const handleOpenMap = (
+    locationText: string,
+    gearName: string,
+    manualRegionId?: string,
+    manualPinId?: string
+  ) => {
+    if (!onNavigateToMap) return;
+    const target = resolveMapTarget(locationText, manualRegionId, manualPinId);
+    onNavigateToMap(target.regionId, target.pinId, `装備入手：${gearName} (${target.regionName})`);
+  };
 
   const currentClass = classGearProgressionList.find((c) => c.id === selectedClassId) || classGearProgressionList[0];
   const currentPhaseData = currentClass.phases[selectedPhase];
@@ -265,15 +284,34 @@ export const ClassGearProgressionSection: React.FC = () => {
                   )}
 
                   {/* Location & How to Get */}
-                  <div className="p-2.5 rounded-xl bg-black/50 border border-white/5 space-y-1.5 text-xs">
-                    <div className="flex items-start gap-1.5 text-gray-300">
-                      <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
-                      <div>
-                        <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider block">
-                          【入手場所・最寄り祝福】
-                        </span>
-                        <span className="text-xs text-white font-medium">{weapon.location}</span>
+                  <div className="p-2.5 rounded-xl bg-black/50 border border-white/5 space-y-2 text-xs">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="flex items-start gap-1.5 text-gray-300 min-w-0">
+                        <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                        <div className="min-w-0">
+                          <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider block">
+                            【入手場所・最寄り祝福】
+                          </span>
+                          <span className="text-xs text-white font-medium break-words leading-relaxed">
+                            {weapon.location}
+                          </span>
+                        </div>
                       </div>
+                      <button
+                        onClick={() =>
+                          handleOpenMap(
+                            weapon.location,
+                            weapon.name,
+                            weapon.regionId,
+                            weapon.pinId
+                          )
+                        }
+                        className="inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg bg-elden-gold text-black hover:bg-elden-gold-light text-[11px] font-bold transition-all shadow active:scale-95 cursor-pointer shrink-0 w-full sm:w-auto"
+                        title="マップで場所を確認"
+                      >
+                        <Compass className="w-3.5 h-3.5" />
+                        <span>📍 マップ表示</span>
+                      </button>
                     </div>
 
                     <div className="pl-5 text-[11px] text-gray-300 leading-relaxed border-t border-white/5 pt-1.5">
@@ -354,15 +392,34 @@ export const ClassGearProgressionSection: React.FC = () => {
                   </div>
 
                   {/* Location & How to Get */}
-                  <div className="p-2.5 rounded-xl bg-black/50 border border-white/5 space-y-1.5 text-xs">
-                    <div className="flex items-start gap-1.5 text-gray-300">
-                      <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
-                      <div>
-                        <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider block">
-                          【入手場所・最寄り祝福】
-                        </span>
-                        <span className="text-xs text-white font-medium">{armor.location}</span>
+                  <div className="p-2.5 rounded-xl bg-black/50 border border-white/5 space-y-2 text-xs">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="flex items-start gap-1.5 text-gray-300 min-w-0">
+                        <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                        <div className="min-w-0">
+                          <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider block">
+                            【入手場所・最寄り祝福】
+                          </span>
+                          <span className="text-xs text-white font-medium break-words leading-relaxed">
+                            {armor.location}
+                          </span>
+                        </div>
                       </div>
+                      <button
+                        onClick={() =>
+                          handleOpenMap(
+                            armor.location,
+                            armor.name,
+                            armor.regionId,
+                            armor.pinId
+                          )
+                        }
+                        className="inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg bg-elden-gold text-black hover:bg-elden-gold-light text-[11px] font-bold transition-all shadow active:scale-95 cursor-pointer shrink-0 w-full sm:w-auto"
+                        title="マップで場所を確認"
+                      >
+                        <Compass className="w-3.5 h-3.5" />
+                        <span>📍 マップ表示</span>
+                      </button>
                     </div>
 
                     <div className="pl-5 text-[11px] text-gray-300 leading-relaxed border-t border-white/5 pt-1.5">

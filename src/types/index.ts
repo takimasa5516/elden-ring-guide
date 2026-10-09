@@ -240,6 +240,8 @@ export interface AshOfWarItem {
   weaponTypes: string; // 剣/斧/槍など
   fpCost: string;
   location: string;
+  regionId?: string;
+  pinId?: string;
   howToGet: string;
   feature: string;
   whyStrong: string;
@@ -251,6 +253,8 @@ export interface WhetbladeItem {
   name: string;
   affinities: string[];
   location: string;
+  regionId?: string;
+  pinId?: string;
   howToGet: string;
   feature: string;
 }
@@ -295,6 +299,8 @@ export interface NpcQuestStep {
   destination: string; // 行先（エリア・最寄りの祝福・具体的な位置）
   action: string; // 対応内容（具体的な行動・手順・会話）
   location?: string; // 後方互換用
+  regionId?: string; // 紐づく地域マップID
+  pinId?: string; // 紐づくピンID
   acquiredItems?: string[]; // 入手アイテム・報酬
   dialogOrChoice?: string; // 会話・選択肢
   caution?: string; // 注意点・時限・フラグ折れ
@@ -344,6 +350,8 @@ export interface GearItemDetail {
   category: 'weapon' | 'armor' | 'catalyst' | 'shield';
   statReq?: string; // 必要能力値
   location: string; // エリア・最寄り祝福
+  regionId?: string; // 紐づく地域マップID
+  pinId?: string; // 紐づくピンID
   bossRequired: boolean;
   bossName?: string;
   howToGet: string; // 具体的な入手手順・取得方法
