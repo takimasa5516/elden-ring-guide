@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { regionsData, MapPin } from '../data/regionMapData';
+import React, { useState, useMemo } from 'react';
+import { regionsData, MapPin, RegionCategory } from '../data/regionMapData';
 import {
-  Map,
   MapPin as PinIcon,
   Compass,
   Eye,
@@ -9,22 +8,55 @@ import {
   X,
   ListOrdered,
   Tag,
+  Layers,
+  Mountain,
+  Castle,
+  Flame,
+  Globe,
+  ChevronRight,
+  Sparkles
 } from 'lucide-react';
 
 export const RegionMapSection: React.FC = () => {
+  const [selectedCategory, setSelectedCategory] = useState<RegionCategory | 'all'>('world');
   const [selectedRegionId, setSelectedRegionId] = useState<string>(regionsData[0].id);
   const [selectedPin, setSelectedPin] = useState<MapPin | null>(regionsData[0].pins[0]);
   // pinMode: 'all' (地名＋番号), 'compact' (番号のみ), 'none' (ピンなし・白地図)
   const [pinMode, setPinMode] = useState<'all' | 'compact' | 'none'>('all');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const currentRegion = regionsData.find((r) => r.id === selectedRegionId) || regionsData[0];
+  const categories = useMemo(() => [
+    { id: 'world' as const, label: '全体俯瞰', icon: Globe, count: regionsData.filter(r => r.category === 'world').length },
+    { id: 'main_surface' as const, label: '地上界', icon: Compass, count: regionsData.filter(r => r.category === 'main_surface').length },
+    { id: 'late_game' as const, label: '終盤・天空・秘境', icon: Castle, count: regionsData.filter(r => r.category === 'late_game').length },
+    { id: 'underground' as const, label: '地下世界 (全域)', icon: Mountain, count: regionsData.filter(r => r.category === 'underground').length },
+    { id: 'dlc' as const, label: 'DLC 影の地', icon: Flame, count: regionsData.filter(r => r.category === 'dlc').length },
+    { id: 'all' as const, label: '全14エリア', icon: Layers, count: regionsData.length },
+  ], []);
+
+  const filteredRegions = useMemo(() => {
+    if (selectedCategory === 'all') return regionsData;
+    return regionsData.filter((r) => r.category === selectedCategory);
+  }, [selectedCategory]);
+
+  const currentRegion = useMemo(() => {
+    return regionsData.find((r) => r.id === selectedRegionId) || regionsData[0];
+  }, [selectedRegionId]);
 
   const getMapImageUrl = (path: string) => {
     const base = import.meta.env.BASE_URL || './';
     const cleanBase = base.endsWith('/') ? base : `${base}/`;
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
     return `${cleanBase}${cleanPath}`;
+  };
+
+  const handleCategoryChange = (catId: RegionCategory | 'all') => {
+    setSelectedCategory(catId);
+    const targetList = catId === 'all' ? regionsData : regionsData.filter((r) => r.category === catId);
+    if (targetList.length > 0 && !targetList.some((r) => r.id === selectedRegionId)) {
+      setSelectedRegionId(targetList[0].id);
+      setSelectedPin(targetList[0].pins[0] || null);
+    }
   };
 
   const handleRegionChange = (id: string) => {
@@ -42,62 +74,92 @@ export const RegionMapSection: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-6 pb-12">
       {/* Banner */}
-      <div className="bg-elden-panel p-4 sm:p-6 rounded-2xl border border-elden-border space-y-2">
+      <div className="bg-gradient-to-r from-elden-panel via-elden-card to-elden-panel p-4 sm:p-6 rounded-2xl border border-elden-gold/40 shadow-xl space-y-2">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-elden-gold/15 border border-elden-gold/30 text-elden-gold-light text-xs font-serif font-bold">
-          <Map className="w-3.5 h-3.5 text-elden-gold" />
-          <span>INTERACTIVE MAP GUIDE • 地方別 地名＆訪問ポイント完全網羅</span>
+          <Sparkles className="w-3.5 h-3.5 text-elden-gold" />
+          <span>ELDEN RING COMPLETE MAP SYSTEM • 狭間の地＆DLC影の地 全域完全網羅</span>
         </div>
         <h2 className="text-xl sm:text-2xl font-bold text-white font-serif flex items-center gap-2">
           <Compass className="w-6 h-6 text-elden-gold" />
-          <span>地域ごとの探索マップ ＆ 訪問ポイント配置</span>
+          <span>狭間の地 ＆ DLC影の地 完全全域マップ</span>
         </h2>
         <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-          Gamerch準拠で各地方の主要ランドマーク・ダンジョン・祝福・教会を番号付きで完全配置しています。<br className="hidden sm:inline" />
-          上部の切り替えボタンで<strong>「地名＋番号表示」「番号のみ」「地名なし（白地図モード）」</strong>を自在に切り替え可能です。
+          本編全域（地上・王都・雪原・ミケラの聖樹・ファルムアズラ）、地下世界全域（シーフラ河・ノクローン・エインセル河・腐れ湖・深き根の底・モーグウィン王朝）、
+          そして大型DLC「影の地」全域と各エリアへの進行ルート図まで、<strong>全14マップ・訪問ポイント完全対応</strong>で収録しています。
         </p>
       </div>
 
-      {/* Region Selector Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-        {regionsData.map((reg) => {
-          const isSelected = reg.id === currentRegion.id;
-          return (
-            <button
-              key={reg.id}
-              onClick={() => handleRegionChange(reg.id)}
-              className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all flex items-center gap-2 ${
-                isSelected
-                  ? 'bg-elden-gold text-black font-bold shadow-md'
-                  : 'bg-elden-panel text-gray-400 hover:text-white border border-elden-border'
-              }`}
-            >
-              <PinIcon className="w-3.5 h-3.5 shrink-0" />
-              <span>{reg.name.split(' ＆ ')[0]}</span>
-              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                isSelected ? 'bg-black/30 text-black font-bold' : 'bg-black/50 text-gray-400'
-              }`}>
-                {reg.pins.length}
-              </span>
-            </button>
-          );
-        })}
+      {/* Category Tabs (スマホ優先設計) */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
+          {categories.map((cat) => {
+            const Icon = cat.icon;
+            const isSelected = selectedCategory === cat.id;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryChange(cat.id)}
+                className={`px-3 py-2 rounded-xl font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+                  isSelected
+                    ? 'bg-elden-gold text-black shadow-lg shadow-elden-gold/20 ring-1 ring-white/50'
+                    : 'bg-elden-card hover:bg-elden-panel text-gray-300 border border-elden-border hover:text-white'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5 shrink-0" />
+                <span>{cat.label}</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                  isSelected ? 'bg-black/30 text-black font-extrabold' : 'bg-black/50 text-gray-400'
+                }`}>
+                  {cat.count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Region Sub-Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
+          {filteredRegions.map((reg) => {
+            const isSelected = reg.id === currentRegion.id;
+            return (
+              <button
+                key={reg.id}
+                onClick={() => handleRegionChange(reg.id)}
+                className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                  isSelected
+                    ? 'bg-amber-600/30 text-elden-gold-light border border-elden-gold font-bold shadow-sm'
+                    : 'bg-elden-panel/80 text-gray-400 hover:text-gray-200 border border-elden-border/60'
+                }`}
+              >
+                <PinIcon className="w-3 h-3 shrink-0 text-elden-gold" />
+                <span>{reg.name.split(' ＆ ')[0]}</span>
+                <span className="text-[10px] font-mono text-gray-400">({reg.pins.length})</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Main Region Map Container */}
-      <div className="bg-elden-panel border border-elden-gold/40 rounded-2xl p-4 sm:p-6 space-y-5 shadow-xl">
+      <div className="bg-elden-panel border border-elden-gold/40 rounded-2xl p-4 sm:p-6 space-y-5 shadow-2xl">
         {/* Region Header & Controls */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-elden-border/80 pb-4">
           <div>
-            <span className="text-[10px] font-mono text-gray-400 uppercase block">
-              {currentRegion.enName}
-            </span>
-            <div className="flex items-center gap-3 mt-0.5">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] px-2 py-0.5 rounded bg-elden-gold/20 text-elden-gold border border-elden-gold/40 font-bold uppercase">
+                {currentRegion.categoryLabel}
+              </span>
+              <span className="text-[10px] font-mono text-gray-400 uppercase">
+                {currentRegion.enName}
+              </span>
+            </div>
+            <div className="flex items-center gap-3 mt-1 flex-wrap">
               <h3 className="text-xl sm:text-2xl font-bold text-white font-serif">
                 {currentRegion.name}
               </h3>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-elden-gold/20 text-elden-gold border border-elden-gold/40 font-mono font-bold">
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-black/60 text-gray-300 border border-gray-700 font-mono font-bold">
                 適正 {currentRegion.recommendedLevel}
               </span>
             </div>
@@ -141,7 +203,7 @@ export const RegionMapSection: React.FC = () => {
                 title="ピンを非表示にして白地図のみ表示"
               >
                 <Eye className="w-3 h-3" />
-                <span>地名なし(白地図)</span>
+                <span>白地図(ピン非表示)</span>
               </button>
             </div>
 
@@ -157,8 +219,8 @@ export const RegionMapSection: React.FC = () => {
         </div>
 
         {/* Exploration Flow & Summary */}
-        <div className="p-3.5 sm:p-4 rounded-xl bg-elden-card border border-elden-border/80 text-xs sm:text-sm text-gray-300 leading-relaxed">
-          <p className="mb-2 font-medium text-gray-200">{currentRegion.summary}</p>
+        <div className="p-3.5 sm:p-4 rounded-xl bg-elden-card border border-elden-border/80 text-xs sm:text-sm text-gray-300 leading-relaxed space-y-2">
+          <p className="font-medium text-gray-200">{currentRegion.summary}</p>
           <div className="flex flex-wrap gap-2 pt-2 border-t border-white/5">
             <span className="text-elden-gold font-bold shrink-0">地図断片の場所:</span>
             {currentRegion.mapFragments.map((mf, idx) => (
@@ -263,14 +325,50 @@ export const RegionMapSection: React.FC = () => {
             </div>
             <button
               onClick={() => scrollToPinInList(selectedPin)}
-              className="self-end sm:self-center px-3 py-1.5 bg-elden-gold/20 hover:bg-elden-gold text-elden-gold hover:text-black border border-elden-gold/40 rounded-lg text-xs font-bold transition-all shrink-0"
+              className="self-end sm:self-center px-3 py-1.5 bg-elden-gold/20 hover:bg-elden-gold text-elden-gold hover:text-black border border-elden-gold/40 rounded-lg text-xs font-bold transition-all shrink-0 flex items-center gap-1"
             >
-              リストへ移動 ↓
+              <span>詳細リストへ</span>
+              <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
         )}
 
-        {/* Gamerch-Style Complete Visiting Points Directory */}
+        {/* Exploration Flow & Hazards Panels */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          {/* Recommended Flow */}
+          <div className="p-4 rounded-xl bg-elden-card border border-elden-border space-y-2">
+            <h4 className="text-sm font-bold text-elden-gold flex items-center gap-1.5 font-serif">
+              <ListOrdered className="w-4 h-4" />
+              <span>推奨探索・攻略フロー</span>
+            </h4>
+            <div className="space-y-1.5 text-xs text-gray-300">
+              {currentRegion.explorationFlow.map((step, idx) => (
+                <div key={idx} className="flex items-start gap-2 leading-relaxed">
+                  <span className="text-elden-gold font-bold shrink-0">{idx + 1}.</span>
+                  <span>{step.replace(/^[①②③④⑤⑥【】sw]+：?/, '')}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Major Hazards */}
+          <div className="p-4 rounded-xl bg-elden-card border border-red-950/40 space-y-2">
+            <h4 className="text-sm font-bold text-red-400 flex items-center gap-1.5 font-serif">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+              <span>要注意ポイント・危険地帯</span>
+            </h4>
+            <div className="space-y-1.5 text-xs text-gray-300">
+              {currentRegion.hazards.map((hazard, idx) => (
+                <div key={idx} className="flex items-start gap-2 leading-relaxed">
+                  <span className="text-red-400 font-bold shrink-0">⚠️</span>
+                  <span>{hazard}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Complete Visiting Points Directory */}
         <div className="space-y-4 pt-4 border-t border-elden-border">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div className="flex items-center gap-2">
@@ -342,10 +440,10 @@ export const RegionMapSection: React.FC = () => {
 
       {/* Fullscreen Map Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col p-2 sm:p-6 animate-fadeIn">
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col p-2 sm:p-6 animate-fadeIn">
           <div className="flex items-center justify-between pb-3 px-2">
             <div className="flex items-center gap-3">
-              <h3 className="text-lg font-bold text-white font-serif">
+              <h3 className="text-base sm:text-lg font-bold text-white font-serif">
                 {currentRegion.name} 全画面マップ
               </h3>
               <div className="inline-flex p-0.5 bg-elden-card rounded-lg border border-elden-border text-xs">
@@ -371,7 +469,7 @@ export const RegionMapSection: React.FC = () => {
                     pinMode === 'none' ? 'bg-elden-gold text-black font-bold' : 'text-gray-300'
                   }`}
                 >
-                  白地図(地名なし)
+                  白地図
                 </button>
               </div>
             </div>
@@ -385,7 +483,7 @@ export const RegionMapSection: React.FC = () => {
 
           <div className="flex-1 relative rounded-xl overflow-auto border border-elden-gold/30 bg-[#0a0c0f] flex items-center justify-center p-2">
             <div 
-              className="relative max-w-3xl w-full"
+              className="relative max-w-4xl w-full"
               style={{ aspectRatio: currentRegion.aspectRatio }}
             >
               <img
