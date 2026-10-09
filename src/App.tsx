@@ -1,16 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Header } from './components/Header';
 import { Navbar } from './components/Navbar';
-import { ProgressionHub } from './components/ProgressionHub';
-import { RegionMapSection } from './components/RegionMapSection';
-import { CharacterHub } from './components/CharacterHub';
-import { EquipmentHub } from './components/EquipmentHub';
-import { PhysickSection } from './components/PhysickSection';
-import { UpgradesSection } from './components/UpgradesSection';
-import { ChecklistSection } from './components/ChecklistSection';
-import { SearchModal } from './components/SearchModal';
 import { upgradesList } from './data/upgradesData';
-import { Github, Heart, Sparkles } from 'lucide-react';
+import { Github, Heart, Sparkles, Loader2 } from 'lucide-react';
+
+// Code Splitting (各ハブ・セクションを遅延ロードして初回読み込みを極限まで軽量化)
+const ProgressionHub = lazy(() => import('./components/ProgressionHub').then(m => ({ default: m.ProgressionHub })));
+const RegionMapSection = lazy(() => import('./components/RegionMapSection').then(m => ({ default: m.RegionMapSection })));
+const CharacterHub = lazy(() => import('./components/CharacterHub').then(m => ({ default: m.CharacterHub })));
+const EquipmentHub = lazy(() => import('./components/EquipmentHub').then(m => ({ default: m.EquipmentHub })));
+const PhysickSection = lazy(() => import('./components/PhysickSection').then(m => ({ default: m.PhysickSection })));
+const UpgradesSection = lazy(() => import('./components/UpgradesSection').then(m => ({ default: m.UpgradesSection })));
+const ChecklistSection = lazy(() => import('./components/ChecklistSection').then(m => ({ default: m.ChecklistSection })));
+const SearchModal = lazy(() => import('./components/SearchModal').then(m => ({ default: m.SearchModal })));
+
+const TabLoadingFallback = () => (
+  <div className="flex flex-col items-center justify-center py-24 space-y-3">
+    <Loader2 className="w-8 h-8 text-elden-gold animate-spin" />
+    <span className="text-xs font-serif text-gray-400">データを読み込み中...</span>
+  </div>
+);
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('progression-hub');
@@ -110,42 +119,48 @@ export const App: React.FC = () => {
         checkedCount={checkedCount}
       />
 
-      {/* Main Content Container */}
+      {/* Main Content Container with Suspense Lazy Loading */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 md:pb-12">
-        {activeTab === 'progression-hub' && (
-          <ProgressionHub
-            initialSubTab={hubSubTabs.progression}
-            onNavigateTab={navigateTab}
-          />
-        )}
-        {activeTab === 'regions' && <RegionMapSection />}
-        {activeTab === 'character-hub' && (
-          <CharacterHub initialSubTab={hubSubTabs.character} />
-        )}
-        {activeTab === 'equipment-hub' && (
-          <EquipmentHub initialSubTab={hubSubTabs.equipment} />
-        )}
+        <Suspense fallback={<TabLoadingFallback />}>
+          {activeTab === 'progression-hub' && (
+            <ProgressionHub
+              initialSubTab={hubSubTabs.progression}
+              onNavigateTab={navigateTab}
+            />
+          )}
+          {activeTab === 'regions' && <RegionMapSection />}
+          {activeTab === 'character-hub' && (
+            <CharacterHub initialSubTab={hubSubTabs.character} />
+          )}
+          {activeTab === 'equipment-hub' && (
+            <EquipmentHub initialSubTab={hubSubTabs.equipment} />
+          )}
 
-        {/* --- 状態保持が必要なツール（統合の対象から完全に除外・独立維持） --- */}
-        {activeTab === 'physick' && <PhysickSection />}
-        {activeTab === 'upgrades' && (
-          <UpgradesSection checkedItems={checkedItems} toggleItem={toggleItem} />
-        )}
-        {activeTab === 'checklist' && (
-          <ChecklistSection
-            checkedItems={checkedItems}
-            toggleItem={toggleItem}
-            resetAll={resetAll}
-          />
-        )}
+          {/* --- 状態保持が必要なツール（統合の対象から完全に除外・独立維持） --- */}
+          {activeTab === 'physick' && <PhysickSection />}
+          {activeTab === 'upgrades' && (
+            <UpgradesSection checkedItems={checkedItems} toggleItem={toggleItem} />
+          )}
+          {activeTab === 'checklist' && (
+            <ChecklistSection
+              checkedItems={checkedItems}
+              toggleItem={toggleItem}
+              resetAll={resetAll}
+            />
+          )}
+        </Suspense>
       </main>
 
       {/* Global Search Modal */}
-      <SearchModal
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-        onSelectTab={navigateTab}
-      />
+      <Suspense fallback={null}>
+        {isSearchOpen && (
+          <SearchModal
+            isOpen={isSearchOpen}
+            onClose={() => setIsSearchOpen(false)}
+            onSelectTab={navigateTab}
+          />
+        )}
+      </Suspense>
 
       {/* Footer */}
       <footer className="border-t border-elden-border/60 bg-[#08090b] py-8 text-center text-xs text-gray-500 mb-14 md:mb-0">

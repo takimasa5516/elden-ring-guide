@@ -245,6 +245,8 @@ export const RegionMapSection: React.FC = () => {
             <img
               src={getMapImageUrl(currentRegion.mapImage)}
               alt={`${currentRegion.name} の公式マップ`}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-contain filter brightness-95 contrast-105 transition-transform duration-500"
             />
 
@@ -489,6 +491,8 @@ export const RegionMapSection: React.FC = () => {
               <img
                 src={getMapImageUrl(currentRegion.mapImage)}
                 alt={currentRegion.name}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-contain"
               />
               {pinMode !== 'none' &&
