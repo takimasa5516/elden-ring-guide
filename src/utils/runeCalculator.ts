@@ -326,3 +326,72 @@ export function calculateStatDiff(
   }
   return diff;
 }
+
+/**
+ * 生命力・精神力・持久力から推定HP・FP・スタミナ・装備重量を算出
+ */
+export interface DerivedStats {
+  hp: number;
+  fp: number;
+  stamina: number;
+  equipLoad: number;
+}
+
+export function calculateDerivedStats(stats: CharacterStats): DerivedStats {
+  const v = Math.max(1, Math.min(99, stats.vigor || 10));
+  const m = Math.max(1, Math.min(99, stats.mind || 10));
+  const e = Math.max(1, Math.min(99, stats.endurance || 10));
+
+  // HP (生命力)
+  let hp = 414;
+  if (v <= 25) {
+    hp = Math.round(300 + (v - 1) * ((800 - 300) / 24));
+  } else if (v <= 40) {
+    hp = Math.round(800 + (v - 25) * ((1450 - 800) / 15));
+  } else if (v <= 60) {
+    hp = Math.round(1450 + (v - 40) * ((1900 - 1450) / 20));
+  } else {
+    hp = Math.round(1900 + (v - 60) * ((2100 - 1900) / 39));
+  }
+
+  // FP (精神力)
+  let fp = 78;
+  if (m <= 15) {
+    fp = Math.round(50 + (m - 1) * ((95 - 50) / 14));
+  } else if (m <= 35) {
+    fp = Math.round(95 + (m - 15) * ((200 - 95) / 20));
+  } else if (m <= 60) {
+    fp = Math.round(200 + (m - 35) * ((350 - 200) / 25));
+  } else {
+    fp = Math.round(350 + (m - 60) * ((450 - 350) / 39));
+  }
+
+  // スタミナ (持久力)
+  let stamina = 96;
+  if (e <= 15) {
+    stamina = Math.round(80 + (e - 1) * ((105 - 80) / 14));
+  } else if (e <= 30) {
+    stamina = Math.round(105 + (e - 15) * ((130 - 105) / 15));
+  } else if (e <= 50) {
+    stamina = Math.round(130 + (e - 30) * ((155 - 130) / 20));
+  } else {
+    stamina = Math.round(155 + (e - 50) * ((170 - 155) / 49));
+  }
+
+  // 装備重量 (持久力)
+  let equipLoad = 45.0;
+  if (e <= 25) {
+    equipLoad = Math.round((45.0 + (e - 8) * ((72.0 - 45.0) / 17)) * 10) / 10;
+  } else if (e <= 60) {
+    equipLoad = Math.round((72.0 + (e - 25) * ((120.0 - 72.0) / 35)) * 10) / 10;
+  } else {
+    equipLoad = Math.round((120.0 + (e - 60) * ((160.0 - 120.0) / 39)) * 10) / 10;
+  }
+
+  return {
+    hp: Math.max(300, hp),
+    fp: Math.max(50, fp),
+    stamina: Math.max(80, stamina),
+    equipLoad: Math.max(45.0, equipLoad),
+  };
+}
