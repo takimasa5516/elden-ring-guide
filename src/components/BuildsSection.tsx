@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { buildsList } from '../data/buildsData';
-import { Target, Heart, Shield, Sparkles, Check, Flame } from 'lucide-react';
+import { Target, Heart, Shield, Sparkles, Check, Flame, Calculator } from 'lucide-react';
 
-export const BuildsSection: React.FC = () => {
+interface BuildsSectionProps {
+  onNavigateToCalculator?: () => void;
+}
+
+export const BuildsSection: React.FC<BuildsSectionProps> = ({ onNavigateToCalculator }) => {
   const [selectedBuildId, setSelectedBuildId] = useState<string>(buildsList[0].id);
 
   const currentBuild = buildsList.find((b) => b.id === selectedBuildId) || buildsList[0];
@@ -99,10 +103,21 @@ export const BuildsSection: React.FC = () => {
 
         {/* Level Targets Table (Responsive) */}
         <div className="space-y-2">
-          <h4 className="text-sm font-bold text-white font-serif flex items-center gap-2">
-            <Shield className="w-4 h-4 text-elden-gold" />
-            <span>レベル別ステータス目標（目安）</span>
-          </h4>
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-bold text-white font-serif flex items-center gap-2">
+              <Shield className="w-4 h-4 text-elden-gold" />
+              <span>レベル別ステータス目標（目安）</span>
+            </h4>
+            {onNavigateToCalculator && (
+              <button
+                onClick={onNavigateToCalculator}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-elden-gold/15 hover:bg-elden-gold hover:text-black text-elden-gold border border-elden-gold/40 text-xs font-bold transition-all"
+              >
+                <Calculator className="w-3.5 h-3.5" />
+                <span>必要ルーン計算機でシミュレート</span>
+              </button>
+            )}
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
             {/* Level 50 */}

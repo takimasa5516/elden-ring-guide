@@ -99,7 +99,7 @@ export const App: React.FC = () => {
     if (['lost-guide', 'progression', 'npc-safety', 'runes'].includes(tabId)) {
       setActiveTab('progression-hub');
       setHubSubTabs((prev) => ({ ...prev, progression: tabId }));
-    } else if (['controls', 'classes', 'builds'].includes(tabId)) {
+    } else if (['controls', 'classes', 'builds', 'rune-calc'].includes(tabId)) {
       setActiveTab('character-hub');
       setHubSubTabs((prev) => ({ ...prev, character: tabId }));
     } else if (['ashes', 'smithing', 'useful'].includes(tabId)) {

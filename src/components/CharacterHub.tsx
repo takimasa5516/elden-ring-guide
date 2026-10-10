@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ControlsSection } from './ControlsSection';
 import { ClassesWeaponsSection } from './ClassesWeaponsSection';
 import { BuildsSection } from './BuildsSection';
-import { Gamepad2, Sword, Target } from 'lucide-react';
+import { RuneCalculatorSection } from './RuneCalculatorSection';
+import { Gamepad2, Sword, Target, Calculator } from 'lucide-react';
 
 interface CharacterHubProps {
   initialSubTab?: string;
@@ -25,13 +26,14 @@ export const CharacterHub: React.FC<CharacterHubProps> = ({
     { id: 'controls', label: '基本操作・心得・魔術・祈祷', shortLabel: '操作・魔法', icon: Gamepad2 },
     { id: 'classes', label: '職業別装備 (本編/DLC) ＆ 素性', shortLabel: '職業・装備', icon: Sword },
     { id: 'builds', label: 'おすすめビルド・ステ振り', shortLabel: 'ビルド・育成', icon: Target },
+    { id: 'rune-calc', label: '必要ルーン計算機（経験値）', shortLabel: 'ルーン計算', icon: Calculator },
   ];
 
   return (
     <div className="space-y-6">
       {/* Mobile-friendly Hub Subtabs Switcher */}
       <div className="bg-elden-panel/90 backdrop-blur-md p-1.5 sm:p-2 rounded-2xl border border-elden-gold/30 shadow-lg sticky top-14 sm:top-16 z-30">
-        <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
           {subTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeSubTab === tab.id;
@@ -42,7 +44,7 @@ export const CharacterHub: React.FC<CharacterHubProps> = ({
                   setActiveSubTab(tab.id);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className={`flex items-center justify-center gap-2 p-2.5 sm:p-3 rounded-xl border text-xs sm:text-sm font-bold transition-all ${
+                className={`flex items-center justify-center gap-1.5 sm:gap-2 p-2.5 sm:p-3 rounded-xl border text-xs sm:text-sm font-bold transition-all ${
                   isActive
                     ? 'bg-elden-gold text-black border-elden-gold shadow-md font-serif'
                     : 'bg-black/40 text-gray-400 hover:text-white hover:bg-black/60 border-white/5'
@@ -61,7 +63,10 @@ export const CharacterHub: React.FC<CharacterHubProps> = ({
       <div className="pt-2">
         {activeSubTab === 'controls' && <ControlsSection />}
         {activeSubTab === 'classes' && <ClassesWeaponsSection onNavigateToMap={onNavigateToMap} />}
-        {activeSubTab === 'builds' && <BuildsSection />}
+        {activeSubTab === 'builds' && (
+          <BuildsSection onNavigateToCalculator={() => setActiveSubTab('rune-calc')} />
+        )}
+        {activeSubTab === 'rune-calc' && <RuneCalculatorSection />}
       </div>
     </div>
   );
