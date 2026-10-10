@@ -37,6 +37,85 @@ import {
   ArrowRightLeft,
 } from 'lucide-react';
 
+interface NumberInputProps {
+  value: number;
+  min: number;
+  max: number;
+  onChange: (val: number) => void;
+  className?: string;
+  autoSelectOnFocus?: boolean;
+}
+
+const NumberInput: React.FC<NumberInputProps> = ({
+  value,
+  min,
+  max,
+  onChange,
+  className = '',
+  autoSelectOnFocus = true,
+}) => {
+  const [text, setText] = useState<string>(String(value));
+  const isFocusedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (!isFocusedRef.current) {
+      setText(String(value));
+    }
+  }, [value]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newText = e.target.value;
+    if (newText === '' || /^\d+$/.test(newText)) {
+      setText(newText);
+      if (newText !== '') {
+        const parsed = parseInt(newText, 10);
+        if (!isNaN(parsed) && parsed >= min && parsed <= max) {
+          onChange(parsed);
+        }
+      }
+    }
+  };
+
+  const handleBlur = () => {
+    isFocusedRef.current = false;
+    let num = parseInt(text, 10);
+    if (isNaN(num) || num < min) {
+      num = min;
+    } else if (num > max) {
+      num = max;
+    }
+    setText(String(num));
+    onChange(num);
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    isFocusedRef.current = true;
+    if (autoSelectOnFocus) {
+      e.target.select();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.currentTarget.blur();
+    }
+  };
+
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      pattern="[0-9]*"
+      value={text}
+      onFocus={handleFocus}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
+      className={className}
+    />
+  );
+};
+
 export const RuneCalculatorSection: React.FC = () => {
   // モード切替: 'stats' (ステ振りから計算), 'levels' (レベルから直接計算), 'reverse' (手持ちルーンから逆算)
   const [calcMode, setCalcMode] = useState<'stats' | 'levels' | 'reverse'>('stats');
@@ -102,22 +181,16 @@ export const RuneCalculatorSection: React.FC = () => {
   };
 
   // ステータス直接数値入力ハンドラ（現在ステータス）
-  const handleCurrentStatInputChange = (key: StatKey, rawVal: string) => {
+  const handleCurrentStatChange = (key: StatKey, val: number) => {
     const minVal = selectedClass.stats[key];
-    if (rawVal === '') {
-      setCurrentStats((prev) => ({ ...prev, [key]: minVal }));
-      return;
-    }
-    const num = parseInt(rawVal, 10);
-    if (!isNaN(num)) {
-      const clamped = Math.max(minVal, Math.min(99, num));
-      setCurrentStats((prev) => {
-        if (clamped > targetStats[key]) {
-          setTargetStats((tPrev) => ({ ...tPrev, [key]: clamped }));
-        }
-        return { ...prev, [key]: clamped };
-      });
-    }
+    const clamped = Math.max(minVal, Math.min(99, val));
+    setCurrentStats((prev) => {
+      const next = { ...prev, [key]: clamped };
+      if (clamped > targetStats[key]) {
+        setTargetStats((tPrev) => ({ ...tPrev, [key]: clamped }));
+      }
+      return next;
+    });
   };
 
   // ステータス増減ハンドラ（現在ステータス）
@@ -133,17 +206,10 @@ export const RuneCalculatorSection: React.FC = () => {
   };
 
   // ステータス直接数値入力ハンドラ（目標ステータス）
-  const handleTargetStatInputChange = (key: StatKey, rawVal: string) => {
+  const handleTargetStatChange = (key: StatKey, val: number) => {
     const minVal = currentStats[key];
-    if (rawVal === '') {
-      setTargetStats((prev) => ({ ...prev, [key]: minVal }));
-      return;
-    }
-    const num = parseInt(rawVal, 10);
-    if (!isNaN(num)) {
-      const clamped = Math.max(minVal, Math.min(99, num));
-      setTargetStats((prev) => ({ ...prev, [key]: clamped }));
-    }
+    const clamped = Math.max(minVal, Math.min(99, val));
+    setTargetStats((prev) => ({ ...prev, [key]: clamped }));
   };
 
   // ステータス増減ハンドラ（目標ステータス）
@@ -805,13 +871,11 @@ export const RuneCalculatorSection: React.FC = () => {
                           </div>
 
                           {/* 直接入力可能な数値インプット */}
-                          <input
-                            type="number"
+                          <NumberInput
+                            value={curVal}
                             min={minVal}
                             max={99}
-                            value={curVal}
-                            onFocus={(e) => e.target.select()}
-                            onChange={(e) => handleCurrentStatInputChange(key, e.target.value)}
+                            onChange={(val) => handleCurrentStatChange(key, val)}
                             className="w-12 text-center text-base font-bold font-mono text-white bg-black/60 rounded border border-white/10 focus:border-elden-gold focus:outline-none p-0.5"
                           />
 
@@ -860,13 +924,11 @@ export const RuneCalculatorSection: React.FC = () => {
                           </div>
 
                           {/* 直接入力可能な数値インプット */}
-                          <input
-                            type="number"
+                          <NumberInput
+                            value={tgtVal}
                             min={curVal}
                             max={99}
-                            value={tgtVal}
-                            onFocus={(e) => e.target.select()}
-                            onChange={(e) => handleTargetStatInputChange(key, e.target.value)}
+                            onChange={(val) => handleTargetStatChange(key, val)}
                             className="w-12 text-center text-base font-bold font-mono text-amber-300 bg-black/60 rounded border border-amber-500/40 focus:border-amber-400 focus:outline-none p-0.5"
                           />
 
@@ -921,19 +983,13 @@ export const RuneCalculatorSection: React.FC = () => {
                 <span className="text-xs text-gray-400 font-serif">現在のレベル</span>
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs text-gray-400 font-mono">Lv</span>
-                  <input
-                    type="number"
-                    min="1"
-                    max="712"
+                  <NumberInput
                     value={directCurrentLevel}
-                    onFocus={(e) => e.target.select()}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value, 10);
-                      if (!isNaN(val)) {
-                        const clamped = Math.max(1, Math.min(712, val));
-                        setDirectCurrentLevel(clamped);
-                        if (clamped > directTargetLevel) setDirectTargetLevel(clamped);
-                      }
+                    min={1}
+                    max={712}
+                    onChange={(val) => {
+                      setDirectCurrentLevel(val);
+                      if (val > directTargetLevel) setDirectTargetLevel(val);
                     }}
                     className="w-16 text-center text-lg font-bold font-mono text-elden-gold bg-black/80 rounded border border-white/20 p-1 focus:border-elden-gold focus:outline-none"
                   />
@@ -975,19 +1031,11 @@ export const RuneCalculatorSection: React.FC = () => {
                 <span className="text-xs text-elden-gold font-serif">目標レベル</span>
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs text-amber-400/80 font-mono">Lv</span>
-                  <input
-                    type="number"
-                    min={directCurrentLevel}
-                    max="713"
+                  <NumberInput
                     value={directTargetLevel}
-                    onFocus={(e) => e.target.select()}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value, 10);
-                      if (!isNaN(val)) {
-                        const clamped = Math.max(directCurrentLevel, Math.min(713, val));
-                        setDirectTargetLevel(clamped);
-                      }
-                    }}
+                    min={directCurrentLevel}
+                    max={713}
+                    onChange={(val) => setDirectTargetLevel(val)}
                     className="w-16 text-center text-lg font-bold font-mono text-amber-300 bg-black/80 rounded border border-amber-500/40 p-1 focus:border-amber-400 focus:outline-none"
                   />
                 </div>
@@ -1038,13 +1086,11 @@ export const RuneCalculatorSection: React.FC = () => {
                 現在のキャラクターレベル
               </label>
               <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  min="1"
-                  max="712"
+                <NumberInput
                   value={reverseBaseLevel}
-                  onFocus={(e) => e.target.select()}
-                  onChange={(e) => setReverseBaseLevel(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                  min={1}
+                  max={712}
+                  onChange={(val) => setReverseBaseLevel(val)}
                   className="w-full p-2.5 rounded-xl bg-black/80 border border-white/20 text-white font-mono text-base focus:border-elden-gold focus:outline-none"
                 />
               </div>
@@ -1067,12 +1113,11 @@ export const RuneCalculatorSection: React.FC = () => {
                 手持ちルーン総数
               </label>
               <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  min="0"
+                <NumberInput
                   value={currentHoldRunes}
-                  onFocus={(e) => e.target.select()}
-                  onChange={(e) => setCurrentHoldRunes(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                  min={0}
+                  max={999999999}
+                  onChange={(val) => setCurrentHoldRunes(val)}
                   className="w-full p-2.5 rounded-xl bg-black/80 border border-amber-500/40 text-amber-300 font-mono text-base focus:border-amber-400 focus:outline-none"
                 />
               </div>
