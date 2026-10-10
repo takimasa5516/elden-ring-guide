@@ -1,4 +1,4 @@
-import{c as g}from"./index-Dqtazgci.js";import{r as I}from"./regionMapData-D-7vsYEz.js";/**
+import{c as g}from"./index-UpBoEYAJ.js";import{r as I}from"./regionMapData-D-7vsYEz.js";/**
  * @license lucide-react v0.475.0 - ISC
  *
  * This source code is licensed under the ISC license.
