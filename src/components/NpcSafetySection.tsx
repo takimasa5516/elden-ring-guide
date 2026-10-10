@@ -29,7 +29,7 @@ interface NpcSafetySectionProps {
 export const NpcSafetySection: React.FC<NpcSafetySectionProps> = ({ onNavigateToMap }) => {
   const [activeTab, setActiveTab] = useState<'flow' | 'alerts'>('flow');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [expandedNpc, setExpandedNpc] = useState<string | null>('ranni');
+  const [expandedNpc, setExpandedNpc] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const handleOpenMap = (
