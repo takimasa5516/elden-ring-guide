@@ -102,7 +102,7 @@ export const App: React.FC = () => {
     } else if (['controls', 'classes', 'builds', 'rune-calc'].includes(tabId)) {
       setActiveTab('character-hub');
       setHubSubTabs((prev) => ({ ...prev, character: tabId }));
-    } else if (['ashes', 'smithing', 'useful'].includes(tabId)) {
+    } else if (['ashes', 'smithing', 'useful', 'crafting'].includes(tabId)) {
       setActiveTab('equipment-hub');
       setHubSubTabs((prev) => ({ ...prev, equipment: tabId }));
     } else {

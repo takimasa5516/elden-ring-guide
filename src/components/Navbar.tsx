@@ -36,14 +36,14 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, checked
       label: 'キャラ・育成',
       shortLabel: 'キャラ育成',
       icon: Target,
-      matchTabs: ['character-hub', 'controls', 'classes', 'builds'],
+      matchTabs: ['character-hub', 'controls', 'classes', 'builds', 'rune-calc'],
     },
     {
       id: 'equipment-hub',
       label: '戦技・強化',
       shortLabel: '戦技・強化',
       icon: Swords,
-      matchTabs: ['equipment-hub', 'ashes', 'smithing', 'useful'],
+      matchTabs: ['equipment-hub', 'ashes', 'smithing', 'useful', 'crafting'],
     },
     // --- 状態保持が必要なツール（統合除外・独立維持） ---
     {

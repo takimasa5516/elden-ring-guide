@@ -36,9 +36,10 @@ function copyFolderSync(from, to) {
 console.log('Copying new dist files...');
 copyFolderSync(distDir, tempDir);
 
-console.log('Committing and pushing to gh-pages...');
+const commitMsg = process.argv[2] || 'feat(crafting): アイテム製作（クラフト）・製法書＆素材マラソン完全ガイドの追加と本番反映';
+console.log('Committing and pushing to gh-pages with message:', commitMsg);
 execSync('git add -A', { cwd: tempDir, stdio: 'inherit' });
-execSync('git commit -m "deploy: サブNPCイベント完全攻略フローおよび武器・防具・戦灰取得と地域マップの相互連動システムの本番反映"', { cwd: tempDir, stdio: 'inherit' });
+execSync(`git commit -m "${commitMsg}"`, { cwd: tempDir, stdio: 'inherit' });
 execSync('git push origin gh-pages', { cwd: tempDir, stdio: 'inherit' });
 
 fs.rmSync(tempDir, { recursive: true, force: true });

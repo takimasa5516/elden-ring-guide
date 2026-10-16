@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { AshesOfWarSection } from './AshesOfWarSection';
 import { SmithingSection } from './SmithingSection';
 import { UsefulTipsSection } from './UsefulTipsSection';
-import { Swords, Hammer, Sparkles } from 'lucide-react';
+import { CraftingSection } from './CraftingSection';
+import { Swords, Hammer, Sparkles, BookOpen } from 'lucide-react';
 
 interface EquipmentHubProps {
   initialSubTab?: string;
@@ -25,13 +26,14 @@ export const EquipmentHub: React.FC<EquipmentHubProps> = ({
     { id: 'ashes', label: '戦技・戦灰 ＆ 砥石刃', shortLabel: '戦技・戦灰', icon: Swords },
     { id: 'smithing', label: '鍛石ルート (最速+9)', shortLabel: '鍛石ルート', icon: Hammer },
     { id: 'useful', label: '神遺灰・大ルーン・タリスマン', shortLabel: '遺灰・ルーン', icon: Sparkles },
+    { id: 'crafting', label: 'アイテム製作・製法書 ＆ 素材', shortLabel: '製作・素材', icon: BookOpen },
   ];
 
   return (
     <div className="space-y-6">
       {/* Mobile-friendly Hub Subtabs Switcher */}
       <div className="bg-elden-panel/90 backdrop-blur-md p-1.5 sm:p-2 rounded-2xl border border-elden-gold/30 shadow-lg sticky top-14 sm:top-16 z-30">
-        <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
           {subTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeSubTab === tab.id;
@@ -42,7 +44,7 @@ export const EquipmentHub: React.FC<EquipmentHubProps> = ({
                   setActiveSubTab(tab.id);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className={`flex items-center justify-center gap-2 p-2.5 sm:p-3 rounded-xl border text-xs sm:text-sm font-bold transition-all ${
+                className={`flex items-center justify-center gap-1.5 sm:gap-2 p-2.5 sm:p-3 rounded-xl border text-xs sm:text-sm font-bold transition-all ${
                   isActive
                     ? 'bg-elden-gold text-black border-elden-gold shadow-md font-serif'
                     : 'bg-black/40 text-gray-400 hover:text-white hover:bg-black/60 border-white/5'
@@ -62,6 +64,7 @@ export const EquipmentHub: React.FC<EquipmentHubProps> = ({
         {activeSubTab === 'ashes' && <AshesOfWarSection onNavigateToMap={onNavigateToMap} />}
         {activeSubTab === 'smithing' && <SmithingSection />}
         {activeSubTab === 'useful' && <UsefulTipsSection onNavigateToMap={onNavigateToMap} />}
+        {activeSubTab === 'crafting' && <CraftingSection onNavigateToMap={onNavigateToMap} />}
       </div>
     </div>
   );
