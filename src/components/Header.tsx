@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Shield, Compass, Coins, CheckCircle2, Search } from 'lucide-react';
+import { Sparkles, Shield, Compass, Coins, CheckCircle2, Search, Flame } from 'lucide-react';
 
 interface HeaderProps {
   activeTab: string;
@@ -91,23 +91,42 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Highlight Badges */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4 pt-3 border-t border-elden-border/60">
-          <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-300 bg-elden-card/60 px-2.5 py-1.5 rounded-lg border border-elden-border">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mt-4 pt-3 border-t border-elden-border/60">
+          <button
+            onClick={() => setActiveTab('builds')}
+            className="flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-300 hover:text-white bg-elden-card/60 hover:bg-elden-card px-2.5 py-1.5 rounded-lg border border-elden-border hover:border-elden-gold/40 transition-colors text-left cursor-pointer"
+          >
             <Shield className="w-3.5 h-3.5 text-elden-gold shrink-0" />
             <span className="leading-tight">生命力最優先</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-300 bg-elden-card/60 px-2.5 py-1.5 rounded-lg border border-elden-border">
+          </button>
+          <button
+            onClick={() => setActiveTab('runes')}
+            className="flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-300 hover:text-white bg-elden-card/60 hover:bg-elden-card px-2.5 py-1.5 rounded-lg border border-elden-border hover:border-elden-gold/40 transition-colors text-left cursor-pointer"
+          >
             <Coins className="w-3.5 h-3.5 text-yellow-400 shrink-0" />
             <span className="leading-tight">時給300万ルーン</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-300 bg-elden-card/60 px-2.5 py-1.5 rounded-lg border border-elden-border">
+          </button>
+          <button
+            onClick={() => setActiveTab('upgrades')}
+            className="flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-300 hover:text-white bg-elden-card/60 hover:bg-elden-card px-2.5 py-1.5 rounded-lg border border-elden-border hover:border-elden-gold/40 transition-colors text-left cursor-pointer"
+          >
             <Compass className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
             <span className="leading-tight">聖杯瓶・地図の場所</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-300 bg-elden-card/60 px-2.5 py-1.5 rounded-lg border border-elden-border">
+          </button>
+          <button
+            onClick={() => setActiveTab('classes')}
+            className="flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-300 hover:text-white bg-elden-card/60 hover:bg-elden-card px-2.5 py-1.5 rounded-lg border border-elden-border hover:border-elden-gold/40 transition-colors text-left cursor-pointer"
+          >
             <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
             <span className="leading-tight">ボス不要の最強武器</span>
-          </div>
+          </button>
+          <button
+            onClick={() => setActiveTab('dlc-guide')}
+            className="col-span-2 sm:col-span-1 flex items-center justify-center sm:justify-start gap-1.5 text-[11px] sm:text-xs text-amber-300 hover:text-white bg-amber-950/40 hover:bg-amber-900/60 px-2.5 py-1.5 rounded-lg border border-amber-500/50 hover:border-amber-400 transition-colors font-bold shadow-sm cursor-pointer"
+          >
+            <Flame className="w-3.5 h-3.5 text-amber-400 shrink-0 animate-pulse" />
+            <span className="leading-tight">DLC影の地 完全攻略</span>
+          </button>
         </div>
       </div>
     </header>

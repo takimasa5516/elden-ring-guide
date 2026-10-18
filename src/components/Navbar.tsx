@@ -22,7 +22,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, checked
       label: '進行・道標',
       shortLabel: '進行・道標',
       icon: Compass,
-      matchTabs: ['progression-hub', 'lost-guide', 'progression', 'npc-safety', 'runes'],
+      matchTabs: ['progression-hub', 'lost-guide', 'progression', 'dlc-guide', 'npc-safety', 'runes'],
     },
     {
       id: 'regions',

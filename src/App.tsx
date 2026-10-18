@@ -96,7 +96,7 @@ export const App: React.FC = () => {
 
   // Smart navigation supporting both consolidated Hubs and individual legacy subtab IDs
   const navigateTab = (tabId: string) => {
-    if (['lost-guide', 'progression', 'npc-safety', 'runes'].includes(tabId)) {
+    if (['lost-guide', 'progression', 'dlc-guide', 'npc-safety', 'runes'].includes(tabId)) {
       setActiveTab('progression-hub');
       setHubSubTabs((prev) => ({ ...prev, progression: tabId }));
     } else if (['controls', 'classes', 'builds', 'rune-calc'].includes(tabId)) {

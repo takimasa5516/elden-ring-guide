@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { progressionStages } from '../data/progressionData';
-import { Compass, CheckCircle, AlertTriangle, ShieldCheck, Sword, Sparkles } from 'lucide-react';
+import { Compass, CheckCircle, AlertTriangle, ShieldCheck, Sword, Sparkles, Flame, ArrowRight } from 'lucide-react';
 
-export const ProgressionSection: React.FC = () => {
+interface ProgressionSectionProps {
+  onNavigateTab?: (tabId: string) => void;
+}
+
+export const ProgressionSection: React.FC<ProgressionSectionProps> = ({ onNavigateTab }) => {
   const [selectedStageId, setSelectedStageId] = useState<string>(progressionStages[0].id);
 
   const currentStage = progressionStages.find((s) => s.id === selectedStageId) || progressionStages[0];
@@ -156,6 +160,32 @@ export const ProgressionSection: React.FC = () => {
           </ul>
         </div>
       </div>
+
+      {/* DLC Banner for Post-Game Players */}
+      {onNavigateTab && (
+        <div className="bg-gradient-to-r from-amber-950/50 via-elden-panel to-neutral-900 border-2 border-amber-500/50 rounded-2xl p-5 sm:p-6 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="space-y-1 text-center sm:text-left">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[11px] font-bold font-serif">
+              <Flame className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+              <span>本編クリア後の次なる戦場</span>
+            </div>
+            <h3 className="text-base sm:text-lg font-bold text-white font-serif">
+              大型DLC「SHADOW OF THE ERDTREE（影の地）」攻略はこちら
+            </h3>
+            <p className="text-xs text-gray-300">
+              突入条件、被ダメ半減・与ダメ2倍の「影樹の加護」速攻ルート、壊れ新武器・神タリスマンの入手場所を完全網羅。
+            </p>
+          </div>
+
+          <button
+            onClick={() => onNavigateTab('dlc-guide')}
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-elden-gold hover:bg-elden-gold-light text-black font-bold text-xs sm:text-sm font-serif flex items-center justify-center gap-2 shadow-lg transition-all shrink-0 cursor-pointer"
+          >
+            <span>DLC完全攻略を見る</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };
